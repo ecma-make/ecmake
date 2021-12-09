@@ -21,6 +21,9 @@
   "author": "Elmar Hinz",
   "license": "MIT",
   "devDependencies": {
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@commitlint/prompt-cli": "^15.0.0",
     "chai": "^4.3.4",
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
