@@ -1,4 +1,4 @@
-const root = module.exports = require('ecmake').makeRoot();
+const root = module.exports = require('@ecmake/ecmake').makeRoot();
 
 root.default.titled('the default target').awaits(root.all);
 root.all.titled('run all').awaits(root.hello.star, root.hello.world);
