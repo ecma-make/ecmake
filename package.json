@@ -1,6 +1,6 @@
 {
   "name": "@ecmake/ecmake",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "ecmake is ecma make",
   "bin": {
     "ecmake": "./lib/index.js"
