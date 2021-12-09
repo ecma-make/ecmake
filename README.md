@@ -7,7 +7,7 @@ Hint: Software and repository may undergo severe changes until version
 
 *Ecmake* is a make or rake alike program implemented in ecma script.
 `ecmakefile.js` is a valid *node module* without any cryptic syntax.
-It is the natural companion of `package.json`.It enters the stage,
+It is the natural companion of `package.json`. It enters the stage,
 where the scripts section of the json file is reaching the limits.
 In the spirit of the ecma language *ecmake* makes intensive use of
 promises. This allows to cleanly scedule dependencies while running
@@ -21,4 +21,23 @@ npm install --save-dev @ecmake/ecmake
 npx ecmake --init
 npx ecmake hello.world
 ```
+
+## `ecmake`
+
+| usage               | command
+| ------------------- | --------------------------------------------------------------------
+| typical usage       | `$ ecmake target`
+| do default target   | `$ ecmake`
+| short form          | `$ ecmake [-d directory] [-f makefile] target`
+| long form           | `$ ecmake [--directory directory] [--file makefile] --target target`
+| show dependencies   | `$ ecmake [--directory directory] [--file makefile] --awaits target`
+| list targets        | `$ ecmake [--directory directory] [--file makefile] (--list \| --tree)`
+| init project        | `$ ecmake [--directory directory] [--file makefile] --init`
+| help                | `$ ecmake (--help \| --options)`
+
+- `[ ]` optional
+- `( | )` alternatives
+
+For a full reference of the options type `emake --options` and `ecmake --help`.
+
 
