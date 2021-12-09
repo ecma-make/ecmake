@@ -22,6 +22,22 @@ npx ecmake --init
 npx ecmake hello.world
 ```
 
+## Installation
+
+### Install on project base
+
+```
+npm install --save-dev @ecmake/ecmake
+npx ecmake --help
+```
+
+### Install globally
+
+```
+npm install --global @ecmake/ecmake
+ecmake --help
+```
+
 ## `ecmake`
 
 | usage               | command
