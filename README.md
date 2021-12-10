@@ -13,6 +13,20 @@ In the spirit of the ecma language *ecmake* makes intensive use of
 promises. This allows to cleanly scedule dependencies while running
 tasks in parallel whenever possible.
 
+## What makes the difference?
+
+* The task is the primary citizen, not just a configuration to a tool.
+* Each task is addressable.
+* The task tree allows for hierarchical organisation of the tasks
+  quite like a directory.
+* Semantic path names are a goal of the tree.
+* The tree nodes are autocreated just by declaring a path.
+* The methods of a task can be chained.
+* They are designed as a simple domain specific language (DSL).
+* The object tree allows for composition.
+* The makefile can be modularised into multiple files.
+* You don't need adapters. Just require any library to freely use it.
+
 ## Getting started
 
 ```
