@@ -1,22 +1,23 @@
 {
   "name": "@ecmake/ecmake",
   "version": "0.0.2",
-  "description": "ecmake is ecma make",
+  "description": "ecmake is ecma make – the next generation of task running",
   "homepage" : "https://github.com/ecma-make/ecmake#readme",
   "url": "https://github.com/ecma-make/ecmake/issues",
   "bin": { "ecmake": "./lib/index.js" },
   "main": "./lib/index.js",
   "scripts": { "test": "mocha tests" },
   "keywords": [
+    "node",
     "ecma",
     "make",
     "makefile",
     "rake",
     "rakefile",
-    "entrypoint",
-    "node"
+    "gulp",
+    "grunt"
   ],
-  "author": "Elmar Hinz",
+  "author": "the ecmake team",
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
