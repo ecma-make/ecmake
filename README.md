@@ -1,26 +1,28 @@
 # `ecmake` is ecma make
 
-The next generation of task running
+Next generation of task running
 
 Hint: Software and repository may undergo severe changes until version
 1.0.0 is released.
 
 ## About
 
-The task runner `ecmake` is a make or rake alike command implemented in ecma
-script. `ecmakefile.js` is a valid *node module* without any new syntax to
+The task runner `ecmake` is a make, rake or gulp alike command implemented in
+ecmascript. The data model is built around a tree of task objects and offers a
+DSL, modern aprroaches, that make it stand out amoungst others. In the spirit
+of the ecmasript *ecmake* makes intensive use of promises. This allows to
+cleanly scedule dependencies while running tasks in parallel whenever possible.
+
+The makefile `ecmakefile.js` is a valid *node module* without any new syntax to
 learn. It is the natural companion of `package.json`. It enters the stage,
 where the scripts section of the json file is reaching the limits.
-In the spirit of the ecma language *ecmake* makes intensive use of
-promises. This allows to cleanly scedule dependencies while running
-tasks in parallel whenever possible.
 
 ## What makes the difference?
 
 * The task is the primary citizen, not just a configuration to a tool.
 * Each task is addressable.
-* The task tree allows for hierarchical organisation of the tasks
-  quite like a directory.
+* The task tree allows for hierarchical organisation of the tasks quite like a
+  directory.
 * Semantic path names are a goal of the tree.
 * The tree nodes are autocreated just by declaring a path.
 * The methods of a task can be chained.
@@ -71,5 +73,4 @@ ecmake --version
 - `( | )` alternatives
 
 For a full reference of the options type `emake --options` and `ecmake --help`.
-
 
