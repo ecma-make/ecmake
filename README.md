@@ -1,5 +1,7 @@
 # `ecmake` is ecma make
 
+The next generation of task running
+
 Hint: Software and repository may undergo severe changes until version
 1.0.0 is released.
 
