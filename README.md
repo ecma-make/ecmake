@@ -8,10 +8,10 @@ Hint: Software and repository may undergo severe changes until version
 ## About
 
 The task runner `ecmake` is a make, rake or gulp alike command implemented in
-ecmascript. The data model is a tree of task objects and offers a DSL, modern
-aprroaches, that make it stand out amoungst others. In the spirit of the
-ecmasript *ecmake* makes intensive use of promises. This allows to cleanly
-scedule dependencies while running tasks in parallel whenever possible.
+ecmascript. The data model is a tree of task objects and offers a DSL. These
+modern aproaches make it stand out amoungst other task runners. In the spirit
+of the ecmasript *ecmake* makes intensive use of promises. This allows to
+cleanly scedule dependencies while running tasks in parallel whenever possible.
 
 The makefile `ecmakefile.js` is a valid *node module* without any new syntax to
 learn. It is the natural companion of `package.json`. It enters the stage,
@@ -73,6 +73,112 @@ ecmake --version
 - `( )` alternative
 
 For a full reference of the options type `emake --options` and `ecmake --help`.
+
+## `makefile.js`
+
+### A minimal makefle
+
+A callback is assigned by `will()`.
+
+```
+const root = module.exports = require('@ecmake/ecmake').makeRoot();
+
+root.default.will(() => console.log('Hello world!'));
+```
+
+### Educational examples
+
+Seting up titles with `titled()` and a dpendency with `awaits()`.
+
+```
+root.hello.world.titled('getting started')
+    .will(() => console.log('Hello world!'));
+
+root.default.titled('default task')
+    .awaits(root.hello.world);
+```
+
+The nodes already spring into existence upon the first call to their path. So
+they can be wired up in any order.
+
+```
+root.default
+    .awaits(root.hello.world);
+
+root.hello.world
+    .will(() => console.log('Hello world!'));
+```
+
+Multiple dependencies can be given. Here *world* and *mars* will be done
+in parallel. The order of execution is not defined, while the order between
+them and *default* is defined by the dependency.
+
+```
+root.default
+    .awaits(root.hello.world, root.hello.mars)
+    .will(() => console.log('finally done'));
+
+root.hello.world
+    .will(() => console.log('Hello world!'));
+
+root.hello.mars
+    .will(() => console.log('Hello mars!'));
+```
+
+For asynchronous code a promise is to be returned by the callback.
+
+```
+root.countdown
+    .will(() => new Promise(
+      (resolve) => {
+        setTimeout(() => {
+            console.log('Hello moon, here we come!');
+            resolve();
+        }, 1000);
+      },
+    ));
+```
+
+### Full example of the template file
+
+This example shows how results are returned from a synchronous and an
+asynchronous callback. In case of a an asyncronous callback `root.countdown`
+the result is returned with the help of the `resolve` callback of the promise.
+In case of the synchronous callback `root.setup` the result is returned
+directely.
+
+The example also shows how the results are accessed within the dependent
+callbacks by use of the `result` property of the dependency.
+
+```
+const root = module.exports = require('@ecmake/ecmake').makeRoot();
+
+root.default.titled('the default target')
+    .awaits(root.all);
+
+root.all.titled('run all')
+    .awaits(root.hello.star, root.hello.world);
+
+root.setup
+    .will(() => { return { star: 'mars', countdown: 1000 }; });
+
+root.hello.world.titled('still at home')
+    .will(() => console.log('Hello world!'));
+
+root.hello.star.titled('up to the stars')
+    .awaits(root.countdown)
+    .will( () => { console.log(root.countdown.result); });
+
+root.countdown
+    .awaits(root.setup)
+    .will(() => new Promise(
+      (resolve) => {
+        setTimeout(() => {
+          resolve(`Hello ${root.setup.result.star}, here we go!`);
+        }, root.setup.result.countdown);
+      },
+    ));
+```
 
 ## Terminology
 
