@@ -44,14 +44,14 @@ npx ecmake hello.world
 
 ```
 npm install --save-dev @ecmake/ecmake
-npx ecmake --help
+npx ecmake --version
 ```
 
 ### Install globally
 
 ```
 npm install --global @ecmake/ecmake
-ecmake --help
+ecmake --version
 ```
 
 ## `ecmake`
@@ -65,7 +65,7 @@ ecmake --help
 | show dependencies   | `$ ecmake [--directory directory] [--file makefile] --awaits target`
 | list targets        | `$ ecmake [--directory directory] [--file makefile] (--list \| --tree)`
 | init project        | `$ ecmake [--directory directory] [--file makefile] --init`
-| help                | `$ ecmake (--help \| --options)`
+| help                | `$ ecmake (--help \| --options \| --version)`
 
 - `[ ]` optional
 - `( | )` alternatives
