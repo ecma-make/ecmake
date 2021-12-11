@@ -110,7 +110,8 @@ interface of the makefile is selected.
 root.setup.
     .will(() => { return { name: 'Mary' }; });
 
-root.greeting.titled("Hello anybody")
+root.greeting
+    .titled("Hello anybody")
     .awaits(root.setup)
     .will(() => console.log(`Hello ${root.setup.name}!`));
 
@@ -120,7 +121,8 @@ The nodes already spring into existence upon the first call to their path. So
 they can be wired up in any order.
 
 ```js
-root.greeting.titled("Hello anlybody")
+root.greeting
+    .titled("Hello anybody")
     .awaits(root.setup)
     .will(() => console.log(`Hello ${root.setup.name}!`));
 
@@ -172,19 +174,23 @@ directely.
 ```js
 const root = module.exports = require('@ecmake/ecmake').makeRoot();
 
-root.default.titled('the default target')
+root.default
+    .titled('the default target')
     .awaits(root.all);
 
-root.all.titled('run all')
+root.all
+    .titled('run all')
     .awaits(root.hello.planet, root.hello.world);
 
 root.setup
     .will(() => { return { planet: 'mars', countdown: 1000 }; });
 
-root.hello.world.titled('still at home')
+root.hello.world
+    .titled('still at home')
     .will(() => console.log('Hello world!'));
 
-root.hello.planet.titled('to the stars')
+root.hello.planet
+    .titled('to the stars')
     .awaits(root.countdown)
     .will( () => { console.log(root.countdown.result); });
 
