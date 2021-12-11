@@ -1,12 +1,16 @@
 {
   "name": "@ecmake/ecmake",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "ecmake is ecma make – the next generation of task running",
-  "homepage" : "https://github.com/ecma-make/ecmake#readme",
+  "homepage": "https://github.com/ecma-make/ecmake#readme",
   "url": "https://github.com/ecma-make/ecmake/issues",
-  "bin": { "ecmake": "./lib/index.js" },
+  "bin": {
+    "ecmake": "./lib/index.js"
+  },
   "main": "./lib/index.js",
-  "scripts": { "test": "mocha tests" },
+  "scripts": {
+    "test": "mocha tests"
+  },
   "keywords": [
     "node",
     "ecma",
