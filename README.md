@@ -184,7 +184,7 @@ root.setup
 root.hello.world.titled('still at home')
     .will(() => console.log('Hello world!'));
 
-root.hello.planet.titled('up to the stars')
+root.hello.planet.titled('to the stars')
     .awaits(root.countdown)
     .will( () => { console.log(root.countdown.result); });
 
