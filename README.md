@@ -47,6 +47,7 @@ npx ecmake hello.world
 ```sh
 npm install --save-dev @ecmake/ecmake
 npx ecmake --version
+npx ecmake --init
 ```
 
 ### Install globally
@@ -54,6 +55,13 @@ npx ecmake --version
 ```sh
 npm install --global @ecmake/ecmake
 ecmake --version
+```
+
+Then in the local project:
+
+```sh
+npm link @ecmake/ecmake
+ecmake --init
 ```
 
 ## `ecmake`
