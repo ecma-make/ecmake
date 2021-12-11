@@ -13,7 +13,7 @@ modern aproaches make it stand out amoungst other task runners. In the spirit
 of the ecmasript *ecmake* makes intensive use of promises. This allows to
 cleanly scedule dependencies while running tasks in parallel whenever possible.
 
-The makefile `ecmakefile.js` is a valid *node module* without any new syntax to
+The makefile `ecmakeCode.js` is a valid *node module* without any new syntax to
 learn. It is the natural companion of `package.json`. It enters the stage,
 where the scripts section of the json file is reaching the limits.
 
@@ -70,11 +70,11 @@ ecmake --init
 | -----               | -------
 | typical usage       | `$ ecmake target`
 | do default target   | `$ ecmake`
-| short form          | `$ ecmake [-b base] [-f makefile] target`
-| long form           | `$ ecmake [--base base] [--file makefile] --target target`
-| show dependencies   | `$ ecmake [--base base] [--file makefile] --awaits target`
-| list targets        | `$ ecmake [--base base] [--file makefile] (--list \| --tree)`
-| init project        | `$ ecmake [--base base] [--file makefile] --init`
+| short form          | `$ ecmake [-b base] [-c code] target`
+| long form           | `$ ecmake [--base base] [--code code] --target target`
+| show dependencies   | `$ ecmake [--base base] [--code code] --awaits target`
+| list targets        | `$ ecmake [--base base] [--code code] (--list \| --tree)`
+| init project        | `$ ecmake [--base base] [--code code] --init`
 | help                | `$ ecmake (--help \| --options \| --version)`
 
 - `[ ]` optional
@@ -82,7 +82,7 @@ ecmake --init
 
 For a full reference of the options type `emake --options` and `ecmake --help`.
 
-## `makefile.js`
+## `ecmakeCode.js`
 
 ### A minimal makefile
 
@@ -236,7 +236,7 @@ task name. However, this rule is not that strict, as the example of
   selected *task* called *target*.
 
 - **makefile**: The *makefile* defines the *tasks*. The *default name* is
-  `ecmakefile.js`. It is a pure node module.
+  `ecmakeCode.js`. It is a pure node module.
 
 - **model**: The makefile defines a data model. It consists of a *task tree*
   and assigned *callback functions*.

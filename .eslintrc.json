@@ -22,7 +22,7 @@
             }
         },
         {
-            "files": ["templates/ecmakefile*.js"],
+            "files": ["templates/ecmakeCode*.js"],
             "rules": {
                 "import/no-extraneous-dependencies": 0,
                 "import/no-unresolved": 0,
