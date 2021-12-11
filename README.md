@@ -76,7 +76,7 @@ For a full reference of the options type `emake --options` and `ecmake --help`.
 
 ## `makefile.js`
 
-### A minimal makefle
+### A minimal makefile
 
 A callback is assigned by `will()`.
 
@@ -88,30 +88,52 @@ root.default.will(() => console.log('Hello world!'));
 
 ### Educational examples
 
-Seting up titles with `titled()` and a dpendency with `awaits()`.
+The `awaits()` method declares a dependency of `root.greeting` upon
+`root.setup`. The `result` of `root.setup` is then used within the log message.
 
 ```
-root.hello.world.titled('getting started')
-    .will(() => console.log('Hello world!'));
+root.setup.
+    .will(() => { return { name: 'Mary' }; });
 
-root.default.titled('default task')
-    .awaits(root.hello.world);
+root.greeting
+    .awaits(root.setup)
+    .will(() => console.log(`Hello ${root.setup.result.name}!`));
+
+```
+
+Every task can be called on command line. Calling `ecmake setup` wouldn't give
+any user experience, though. Hence, only the greeting task is given a title.
+Titled tasks are listed with `ecmake --list`.  By giving titles the user
+interface of the makefile is selected.
+
+```
+root.setup.
+    .will(() => { return { name: 'Mary' }; });
+
+root.greeting.titled("Hello anybody")
+    .awaits(root.setup)
+    .will(() => console.log(`Hello ${root.setup.name}!`));
+
 ```
 
 The nodes already spring into existence upon the first call to their path. So
 they can be wired up in any order.
 
 ```
-root.default
-    .awaits(root.hello.world);
+root.greeting.titled("Hello anlybody")
+    .awaits(root.setup)
+    .will(() => console.log(`Hello ${root.setup.name}!`));
 
-root.hello.world
-    .will(() => console.log('Hello world!'));
+root.setup.
+    .will(() => { return { name: 'Mary' }; });
+
 ```
 
-Multiple dependencies can be given. Here *world* and *mars* will be done
-in parallel. The order of execution is not defined, while the order between
-them and *default* is defined by the dependency.
+Multiple dependencies can be given to `awaits()`. Here `root.hello.world` and
+`root.hello.mars` will be done in parallel. Hence, there is no order of
+execution defined by the order of the argumens. On the other hand both are
+garanteed to be finished before `root.default` will be executed. This is
+of special importance for asynchronous tasks.
 
 ```
 root.default
@@ -141,14 +163,11 @@ root.countdown
 
 ### Full example of the template file
 
-This example shows how results are returned from a synchronous and an
+This example shows, how results are returned from a synchronous and an
 asynchronous callback. In case of a an asyncronous callback `root.countdown`
 the result is returned with the help of the `resolve` callback of the promise.
 In case of the synchronous callback `root.setup` the result is returned
 directely.
-
-The example also shows how the results are accessed within the dependent
-callbacks by use of the `result` property of the dependency.
 
 ```
 const root = module.exports = require('@ecmake/ecmake').makeRoot();
@@ -157,15 +176,15 @@ root.default.titled('the default target')
     .awaits(root.all);
 
 root.all.titled('run all')
-    .awaits(root.hello.star, root.hello.world);
+    .awaits(root.hello.planet, root.hello.world);
 
 root.setup
-    .will(() => { return { star: 'mars', countdown: 1000 }; });
+    .will(() => { return { planet: 'mars', countdown: 1000 }; });
 
 root.hello.world.titled('still at home')
     .will(() => console.log('Hello world!'));
 
-root.hello.star.titled('up to the stars')
+root.hello.planet.titled('up to the stars')
     .awaits(root.countdown)
     .will( () => { console.log(root.countdown.result); });
 
@@ -174,11 +193,28 @@ root.countdown
     .will(() => new Promise(
       (resolve) => {
         setTimeout(() => {
-          resolve(`Hello ${root.setup.result.star}, here we go!`);
+          resolve(`Hello ${root.setup.result.planet}, here we go!`);
         }, root.setup.result.countdown);
       },
     ));
 ```
+
+## Namig conventions for the task tree
+
+### Domain name rules for the path
+
+To get a uniform task tree it is recommended, to hold to rules for the choice
+of domain names. This will also make sure, that no conflicts with private
+properties of the `Task` object will occur. In special (heading) underscores
+should be avoided. If a hypen is not enforced by the orthography, dots should
+be prefered as separators.
+
+### Nouns for the tasks
+
+Tasks should be preferably named by nouns. While the API of the class `Task`
+may be extended by `described()` in future, `description` is a future proof
+task name. However, this rule is not that strict, as the example of
+`root.hello.world` shows. It is just a matter of weighting the risc.
 
 ## Terminology
 
