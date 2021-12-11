@@ -70,11 +70,11 @@ ecmake --init
 | -----               | -------
 | typical usage       | `$ ecmake target`
 | do default target   | `$ ecmake`
-| short form          | `$ ecmake [-d directory] [-f makefile] target`
-| long form           | `$ ecmake [--directory directory] [--file makefile] --target target`
-| show dependencies   | `$ ecmake [--directory directory] [--file makefile] --awaits target`
-| list targets        | `$ ecmake [--directory directory] [--file makefile] (--list \| --tree)`
-| init project        | `$ ecmake [--directory directory] [--file makefile] --init`
+| short form          | `$ ecmake [-b base] [-f makefile] target`
+| long form           | `$ ecmake [--base base] [--file makefile] --target target`
+| show dependencies   | `$ ecmake [--base base] [--file makefile] --awaits target`
+| list targets        | `$ ecmake [--base base] [--file makefile] (--list \| --tree)`
+| init project        | `$ ecmake [--base base] [--file makefile] --init`
 | help                | `$ ecmake (--help \| --options \| --version)`
 
 - `[ ]` optional
