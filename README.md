@@ -33,7 +33,7 @@ where the scripts section of the json file is reaching the limits.
 
 ## Getting started
 
-```
+```sh
 npm init -y
 npm install --save-dev @ecmake/ecmake
 npx ecmake --init
@@ -44,14 +44,14 @@ npx ecmake hello.world
 
 ### Install on project base
 
-```
+```sh
 npm install --save-dev @ecmake/ecmake
 npx ecmake --version
 ```
 
 ### Install globally
 
-```
+```sh
 npm install --global @ecmake/ecmake
 ecmake --version
 ```
@@ -80,7 +80,7 @@ For a full reference of the options type `emake --options` and `ecmake --help`.
 
 A callback is assigned by `will()`.
 
-```
+```js
 const root = module.exports = require('@ecmake/ecmake').makeRoot();
 
 root.default.will(() => console.log('Hello world!'));
@@ -91,7 +91,7 @@ root.default.will(() => console.log('Hello world!'));
 The `awaits()` method declares a dependency of `root.greeting` upon
 `root.setup`. The `result` of `root.setup` is then used within the log message.
 
-```
+```js
 root.setup.
     .will(() => { return { name: 'Mary' }; });
 
@@ -106,7 +106,7 @@ any user experience, though. Hence, only the greeting task is given a title.
 Titled tasks are listed with `ecmake --list`.  By giving titles the user
 interface of the makefile is selected.
 
-```
+```js
 root.setup.
     .will(() => { return { name: 'Mary' }; });
 
@@ -119,7 +119,7 @@ root.greeting.titled("Hello anybody")
 The nodes already spring into existence upon the first call to their path. So
 they can be wired up in any order.
 
-```
+```js
 root.greeting.titled("Hello anlybody")
     .awaits(root.setup)
     .will(() => console.log(`Hello ${root.setup.name}!`));
@@ -135,7 +135,7 @@ execution defined by the order of the argumens. On the other hand both are
 garanteed to be finished before `root.default` will be executed. This is
 of special importance for asynchronous tasks.
 
-```
+```js
 root.default
     .awaits(root.hello.world, root.hello.mars)
     .will(() => console.log('finally done'));
@@ -149,7 +149,7 @@ root.hello.mars
 
 For asynchronous code a promise is to be returned by the callback.
 
-```
+```js
 root.countdown
     .will(() => new Promise(
       (resolve) => {
@@ -169,7 +169,7 @@ the result is returned with the help of the `resolve` callback of the promise.
 In case of the synchronous callback `root.setup` the result is returned
 directely.
 
-```
+```js
 const root = module.exports = require('@ecmake/ecmake').makeRoot();
 
 root.default.titled('the default target')
