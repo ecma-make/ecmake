@@ -1,8 +1,9 @@
 # `ecmake` is ecma make
 
-[![Join the chat at https://gitter.im/ecma-make/ecmake](https://badges.gitter.im/ecma-make/ecmake.svg)](https://gitter.im/ecma-make/ecmake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 Next generation task running
+
+[![npm version](https://badge.fury.io/js/@ecmake%2Fecmake.svg)](https://badge.fury.io/js/@ecmake%2Fecmake)
+[![Join the chat at https://gitter.im/ecma-make/ecmake](https://badges.gitter.im/ecma-make/ecmake.svg)](https://gitter.im/ecma-make/ecmake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Hint: Software and repository may undergo severe changes until version
 1.0.0 is released.
