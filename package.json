@@ -9,7 +9,8 @@
   },
   "main": "./lib/index.js",
   "scripts": {
-    "test": "mocha tests"
+    "unitTests": "mocha tests/unit",
+    "integrationTests": "mocha tests/integration"
   },
   "keywords": [
     "node",

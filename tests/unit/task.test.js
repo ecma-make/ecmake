@@ -1,7 +1,7 @@
 require('chai').should();
 const { expect } = require('chai');
 
-const { Task } = require('..');
+const { Task } = require('../..');
 
 describe('Task', () => {
   const description = 'some description of a task';
