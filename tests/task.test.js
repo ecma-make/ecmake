@@ -1,9 +1,10 @@
 require('chai').should();
+const { expect } = require('chai');
 
 const { Task } = require('..');
 
 describe('Task', () => {
-  const title = 'SOME DESCRIPTIVE TITLE';
+  const description = 'some description of a task';
   const dependencies = ['a', 'b', 'c'];
 
   describe('constructor', () => {
@@ -13,7 +14,15 @@ describe('Task', () => {
       Task.name.should.equal('Task');
     });
 
-    it('should recursively create undefined props as new Tasks', () => {
+    it('should set some initial properties', () => {
+      const task = new Task();
+      task.___listed.should.be.false;
+      expect(task.___description).to.be.null;
+      task.___dependencies.should.be.deep.equal([]);
+      task.___willDoCallback.should.exist;
+    });
+
+    it('should recursively autocreate new Tasks', () => {
       const task = new Task();
       task.parent.child = 3;
       task.parent.child.should.equal(3);
@@ -24,15 +33,29 @@ describe('Task', () => {
     });
   });
 
-  describe('titled', () => {
+  describe('listed', () => {
     it('should return this', () => {
       const task = new Task();
-      task.titled().should.equal(task);
+      task.listed().should.equal(task);
     });
-    it('should store title into this.___title', () => {
+    it('should set this.___listed to true', () => {
       const task = new Task();
-      task.titled(title);
-      task.___title.should.equal(title);
+      task.___listed.should.equal(false);
+      task.listed();
+      task.___listed.should.equal(true);
+    });
+  });
+
+  describe('described', () => {
+    it('should return this', () => {
+      const task = new Task();
+      task.described().should.equal(task);
+    });
+    it('should store this.___description', () => {
+      const task = new Task();
+      expect(task.___description).to.be.null;
+      task.described(description);
+      task.___description.should.equal(description);
     });
   });
 
@@ -65,12 +88,16 @@ describe('Task', () => {
     });
   });
 
-  describe('titled, awaits, will', () => {
+  describe('listed, described, awaits, will', () => {
     it('should be able to chain them', () => {
       const callback = () => {};
-      const task = new Task().titled(title).awaits(...dependencies)
+      const task = new Task()
+        .listed()
+        .described(description)
+        .awaits(...dependencies)
         .will(callback);
-      task.___title.should.equal(title);
+      task.___listed.should.be.true;
+      task.___description.should.equal(description);
       task.___dependencies.should.deep.equal(dependencies);
       task.___willDoCallback.should.equal(callback);
     });
@@ -79,8 +106,10 @@ describe('Task', () => {
       const task = new Task()
         .will(callback)
         .awaits(...dependencies)
-        .titled(title);
-      task.___title.should.equal(title);
+        .described(description)
+        .listed();
+      task.___listed.should.be.true;
+      task.___description.should.equal(description);
       task.___dependencies.should.deep.equal(dependencies);
       task.___willDoCallback.should.equal(callback);
     });

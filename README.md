@@ -73,7 +73,7 @@ ecmake --init
 | short form          | `$ ecmake [-b base] [-c code] target`
 | long form           | `$ ecmake [--base base] [--code code] --target target`
 | show dependencies   | `$ ecmake [--base base] [--code code] --awaits target`
-| list targets        | `$ ecmake [--base base] [--code code] (--list \| --tree)`
+| list targets        | `$ ecmake [--base base] [--code code] (--list \| --tree \| --descriptions)`
 | init project        | `$ ecmake [--base base] [--code code] --init`
 | help                | `$ ecmake (--help \| --options \| --version)`
 
@@ -106,23 +106,33 @@ root.setup.
 root.greeting
     .awaits(root.setup)
     .will(() => console.log(`Hello ${root.setup.result.name}!`));
-
 ```
 
 Every task can be called on command line. Calling `ecmake setup` wouldn't give
-any user experience, though. Hence, only the greeting task is given a title.
-Titled tasks are listed with `ecmake --list`.  By giving titles the user
-interface of the makefile is selected.
+any user experience, though. Hence, only the greeting task is selected as
+a listable target. Only listable targets are listed by the option `--list`.
 
 ```js
 root.setup.
     .will(() => { return { name: 'Mary' }; });
 
 root.greeting
-    .titled("Hello anybody")
+    .listed()
     .awaits(root.setup)
     .will(() => console.log(`Hello ${root.setup.name}!`));
+```
 
+A description can be given.
+
+```js
+root.setup.
+    .will(() => { return { name: 'Mary' }; });
+
+root.greeting
+    .described("greets the person named in the setup task")
+    .listed()
+    .awaits(root.setup)
+    .will(() => console.log(`Hello ${root.setup.name}!`));
 ```
 
 The nodes already spring into existence upon the first call to their path. So
@@ -130,13 +140,13 @@ they can be wired up in any order.
 
 ```js
 root.greeting
-    .titled("Hello anybody")
+    .described("greets the person named in the setup task")
+    .listed()
     .awaits(root.setup)
     .will(() => console.log(`Hello ${root.setup.name}!`));
 
 root.setup.
     .will(() => { return { name: 'Mary' }; });
-
 ```
 
 Multiple dependencies can be given to `awaits()`. Here `root.hello.world` and
@@ -174,43 +184,44 @@ root.countdown
 ### Full example of the template file
 
 This example shows, how results are returned from a synchronous and an
-asynchronous callback. In case of a an asyncronous callback `root.countdown`
-the result is returned with the help of the `resolve` callback of the promise.
-In case of the synchronous callback `root.setup` the result is returned
-directely.
+asynchronous callback. In case of the asynchronous callback `root.countdown`
+the result is returned with help of the `resolve` callback of the promise. In
+case of the synchronous callback `root.setup` the result is returned directely.
 
 ```js
 const root = module.exports = require('@ecmake/ecmake').makeRoot();
 
 root.default
-    .titled('the default target')
-    .awaits(root.all);
+  .described('defaults to all')
+  .awaits(root.all);
 
 root.all
-    .titled('run all')
-    .awaits(root.hello.planet, root.hello.world);
+  .listed()
+  .awaits(root.hello.planet, root.hello.world);
 
 root.setup
-    .will(() => { return { planet: 'mars', countdown: 1000 }; });
+  .described("it's the mars")
+  .will(() => ({ planet: 'mars', countdown: 1000 }));
 
 root.hello.world
-    .titled('still at home')
-    .will(() => console.log('Hello world!'));
+  .listed()
+  .will(() => console.log('Hello world!'));
 
 root.hello.planet
-    .titled('to the stars')
-    .awaits(root.countdown)
-    .will( () => { console.log(root.countdown.result); });
+  .described('to the planet given in setup')
+  .listed()
+  .awaits(root.countdown)
+  .will(() => { console.log(root.countdown.result); });
 
 root.countdown
-    .awaits(root.setup)
-    .will(() => new Promise(
-      (resolve) => {
-        setTimeout(() => {
-          resolve(`Hello ${root.setup.result.planet}, here we go!`);
-        }, root.setup.result.countdown);
-      },
-    ));
+  .awaits(root.setup)
+  .will(() => new Promise(
+    (resolve) => {
+      setTimeout(() => {
+        resolve(`Hello ${root.setup.result.planet}, here we go!`);
+      }, root.setup.result.countdown);
+    },
+  ));
 ```
 
 ## Namig conventions for the task tree
@@ -226,7 +237,7 @@ be prefered as separators.
 ### Nouns for the tasks
 
 Tasks should be preferably named by nouns. While the API of the class `Task`
-may be extended by `described()` in future, `description` is a future proof
+may be extended by `titled()` in future, `title` is a future proof
 task name. However, this rule is not that strict, as the example of
 `root.hello.world` shows. It is just a matter of weighting the risc.
 
@@ -262,10 +273,6 @@ task name. However, this rule is not that strict, as the example of
 
 - **target**: The **target** is the *task*, that you select on the command line
   to be executed.
-
-- **title**: A *title* can be assigened to a *task* by use of the `titled()`
-  method. It will be listed with the `--list` option und becomes part of the
-  user interface by this step.
 
 - **result of a task**: You **CAN** return a **result** from a callback, which
   will then become the *result of the task*. If it does *asynchronous* stuff,

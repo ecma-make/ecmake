@@ -1,22 +1,24 @@
 const root = module.exports = require('@ecmake/ecmake').makeRoot();
 
 root.default
-  .titled('the default target')
+  .described('defaults to all')
   .awaits(root.all);
 
 root.all
-  .titled('run all')
+  .listed()
   .awaits(root.hello.planet, root.hello.world);
 
 root.setup
+  .described("it's the mars")
   .will(() => ({ planet: 'mars', countdown: 1000 }));
 
 root.hello.world
-  .titled('still at home')
+  .listed()
   .will(() => console.log('Hello world!'));
 
 root.hello.planet
-  .titled('to the stars')
+  .described('to the planet given in setup')
+  .listed()
   .awaits(root.countdown)
   .will(() => { console.log(root.countdown.result); });
 
