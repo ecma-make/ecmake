@@ -11,32 +11,28 @@ function isHelp(result) {
 
 describe('--help', function x() {
   this.timeout(5000);
-  let fixture;
 
-  beforeEach(() => {
-    fixture = new ProjectFixture();
+  it('should display the help for <ecmake --help>', () => {
+    const fixture = new ProjectFixture(true);
     fixture.setUp();
-  });
-
-  afterEach(() => {
+    const result = cp.execSync('npx ecmake --help').toString();
+    isHelp(result).should.be.true;
     fixture.tearDown();
   });
 
-  it('should display the help for <ecmake --help>', () => {
-    const result = cp.execSync('npx ecmake --help').toString();
-    isHelp(result).should.be.true;
-  });
-
-  it('should display the help for <ecmake>, if ecmakeCode is NOT given', () => {
+  it('should display the help for <ecmake>, if ecmakeCode is NOT set up', () => {
+    const fixture = new ProjectFixture(false);
+    fixture.setUp();
     const result = cp.execSync('npx ecmake').toString();
     isHelp(result).should.be.true;
+    fixture.tearDown();
   });
 
-  it('should NOT display the help for <ecmake>, if ecmakeCode IS given', (done) => {
-    cp.exec('npx ecmake --init', () => {
-      const result = cp.execSync('npx ecmake').toString();
-      isHelp(result).should.be.false;
-      done();
-    });
+  it('should NOT display the help for <ecmake>, if ecmakeCode IS set up', () => {
+    const fixture = new ProjectFixture(true);
+    fixture.setUp();
+    const result = cp.execSync('npx ecmake').toString();
+    isHelp(result).should.be.true;
+    fixture.tearDown();
   });
 });
