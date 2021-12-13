@@ -97,4 +97,38 @@ describe('ProjectFixture', function x() {
       process.cwd().should.equal(originalDirectory);
     });
   });
+
+  describe('pathExists', () => {
+    let projectFixture;
+    let base;
+    const initialDirectory = process.cwd();
+
+    before(() => {
+      projectFixture = new ProjectFixture();
+      base = projectFixture.setUp();
+    });
+
+    after(() => {
+      projectFixture.tearDown();
+    });
+
+    it('should return true for an existing directory', () => {
+      const p = path.join(base, 'node_modules');
+      projectFixture.pathExists(p).should.be.true;
+    });
+
+    it('should return false for a non-existing directory', () => {
+      const p = path.join(base, 'foo');
+      projectFixture.pathExists(p).should.be.false;
+    });
+
+    it('throw an Error for a path outside of the project fixture', () => {
+      try {
+        projectFixture.pathExists(initialDirectory);
+        throw new Error('must not be reached');
+      } catch(error) {
+        error.message.should.include('outside of the project fixture');
+      }
+    });
+  });
 });
