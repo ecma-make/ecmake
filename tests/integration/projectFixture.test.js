@@ -91,6 +91,36 @@ describe('ProjectFixture', function x() {
     });
   });
 
+  describe('setUp with ecmakeCode.js', () => {
+    let projectFixture;
+
+    beforeEach(() => {
+      projectFixture = new ProjectFixture();
+    });
+
+    afterEach(() => {
+      projectFixture.tearDown();
+    });
+
+    it('should create ./ecmakeCode.js for setUp(true)', () => {
+      const codeFile = path.resolve('ecmakeCode.js');
+      projectFixture.setUp(true);
+      projectFixture.pathExists(codeFile);
+    });
+
+    it('should not create ./ecmakeCode.js for setUp(false)', () => {
+      const codeFile = path.resolve('ecmakeCode.js');
+      projectFixture.setUp(false);
+      projectFixture.pathExists(codeFile);
+    });
+
+    it('should not create ./ecmakeCode.js for setUp()', () => {
+      const codeFile = path.resolve('ecmakeCode.js');
+      projectFixture.setUp();
+      projectFixture.pathExists(codeFile);
+    });
+  });
+
   describe('tearDown', () => {
     let originalDirectory;
     let projectFixture;
