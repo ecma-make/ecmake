@@ -1,28 +1,27 @@
 require('chai').should();
-const { spawn } = require('child_process');
-const fs  = require('fs');
-const path  = require('path');
+const fs = require('fs');
+const path = require('path');
 
 const ProjectFixture = require('../../lib/testing/projectFixture');
 
-function exists(path) {
-    try {
-      fs.accessSync(path);
-      return true;
-    } catch (error) {
-      if(error.code === 'ENOENT') {
-        return false;
-      } else {
-        throw error;
-      }
+function exists(p) {
+  try {
+    fs.accessSync(p);
+    return true;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return false;
     }
+    throw error;
+  }
 }
 
-describe('ProjectFixture', function() {
+describe('ProjectFixture', function x() {
   this.timeout(5000);
   describe('constructor', () => {
     it('should be constructable', () => {
       const projectFixture = new ProjectFixture();
+      (projectFixture instanceof ProjectFixture).should.be.true;
     });
     it('should set the prefix', () => {
       const projectFixture = new ProjectFixture();
@@ -36,12 +35,10 @@ describe('ProjectFixture', function() {
   });
 
   describe('setUp', () => {
-    let originalDirectory;
     let projectFixture;
     let base;
 
     before(() => {
-      originalDirectory = process.cwd();
       projectFixture = new ProjectFixture();
       base = projectFixture.setUp();
     });
@@ -63,13 +60,13 @@ describe('ProjectFixture', function() {
     });
 
     it('should have initialized a new project', () => {
-      const package = path.join(base, 'package.json');
-      exists(package).should.be.true;
+      const pkg = path.join(base, 'package.json');
+      exists(pkg).should.be.true;
     });
 
     it('should have linked @ecmake/ecmake', () => {
-      const package = path.resolve(base, 'node_modules', '@ecmake', 'ecmake');
-      exists(package).should.be.true;
+      const pkg = path.resolve(base, 'node_modules', '@ecmake', 'ecmake');
+      exists(pkg).should.be.true;
     });
   });
 
@@ -96,9 +93,8 @@ describe('ProjectFixture', function() {
       exists(base).should.be.false;
     });
 
-    it('should change back to the original directory', () => {
+    it('should change back to the original working directory', () => {
       process.cwd().should.equal(originalDirectory);
     });
   });
-
 });
