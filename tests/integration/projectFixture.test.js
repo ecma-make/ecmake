@@ -1,20 +1,7 @@
 require('chai').should();
-const fs = require('fs');
 const path = require('path');
 
 const ProjectFixture = require('../../lib/testing/projectFixture');
-
-function exists(p) {
-  try {
-    fs.accessSync(p);
-    return true;
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return false;
-    }
-    throw error;
-  }
-}
 
 describe('ProjectFixture', function x() {
   this.timeout(5000);
@@ -31,70 +18,6 @@ describe('ProjectFixture', function x() {
       const originalDirectory = process.cwd();
       const projectFixture = new ProjectFixture();
       projectFixture.originalDirectory.should.equal(originalDirectory);
-    });
-  });
-
-  describe('setUp', () => {
-    let projectFixture;
-    let base;
-
-    before(() => {
-      projectFixture = new ProjectFixture();
-      base = projectFixture.setUp();
-    });
-
-    after(() => {
-      projectFixture.tearDown();
-    });
-
-    it('should use the prefix', () => {
-      base.should.include('ecmake');
-    });
-
-    it('should setup a temporary base directory ', () => {
-      exists(base).should.be.true;
-    });
-
-    it('should change into the temporary directory', () => {
-      process.cwd().should.equal(base);
-    });
-
-    it('should have initialized a new project', () => {
-      const pkg = path.join(base, 'package.json');
-      exists(pkg).should.be.true;
-    });
-
-    it('should have linked @ecmake/ecmake', () => {
-      const pkg = path.resolve(base, 'node_modules', '@ecmake', 'ecmake');
-      exists(pkg).should.be.true;
-    });
-  });
-
-  describe('tearDown', () => {
-    let originalDirectory;
-    let projectFixture;
-    let base;
-
-    before(() => {
-      originalDirectory = process.cwd();
-      projectFixture = new ProjectFixture();
-      base = projectFixture.setUp();
-      exists(base).should.be.true;
-      projectFixture.tearDown();
-      exists(base).should.be.false;
-      process.cwd().should.equal(originalDirectory);
-    });
-
-    after(() => {
-      exists(base).should.be.false;
-    });
-
-    it('should tear down a temporary base directory ', () => {
-      exists(base).should.be.false;
-    });
-
-    it('should change back to the original working directory', () => {
-      process.cwd().should.equal(originalDirectory);
     });
   });
 
@@ -126,9 +49,73 @@ describe('ProjectFixture', function x() {
       try {
         projectFixture.pathExists(initialDirectory);
         throw new Error('must not be reached');
-      } catch(error) {
+      } catch (error) {
         error.message.should.include('outside of the project fixture');
       }
+    });
+  });
+
+  describe('setUp', () => {
+    let projectFixture;
+    let base;
+
+    before(() => {
+      projectFixture = new ProjectFixture();
+      base = projectFixture.setUp();
+    });
+
+    after(() => {
+      projectFixture.tearDown();
+    });
+
+    it('should use the prefix', () => {
+      base.should.include('ecmake');
+    });
+
+    it('should setup a temporary base directory ', () => {
+      projectFixture.pathExists(base).should.be.true;
+    });
+
+    it('should change into the temporary directory', () => {
+      process.cwd().should.equal(base);
+    });
+
+    it('should have initialized a new project', () => {
+      const pkg = path.join(base, 'package.json');
+      projectFixture.pathExists(pkg).should.be.true;
+    });
+
+    it('should have linked @ecmake/ecmake', () => {
+      const pkg = path.resolve(base, 'node_modules', '@ecmake', 'ecmake');
+      projectFixture.pathExists(pkg).should.be.true;
+    });
+  });
+
+  describe('tearDown', () => {
+    let originalDirectory;
+    let projectFixture;
+    let base;
+
+    before(() => {
+      originalDirectory = process.cwd();
+      projectFixture = new ProjectFixture();
+      base = projectFixture.setUp();
+      projectFixture.pathExists(base).should.be.true;
+      projectFixture.tearDown();
+      projectFixture.pathExists(base).should.be.false;
+      process.cwd().should.equal(originalDirectory);
+    });
+
+    after(() => {
+      projectFixture.pathExists(base).should.be.false;
+    });
+
+    it('should tear down a temporary base directory ', () => {
+      projectFixture.pathExists(base).should.be.false;
+    });
+
+    it('should change back to the original working directory', () => {
+      process.cwd().should.equal(originalDirectory);
     });
   });
 });

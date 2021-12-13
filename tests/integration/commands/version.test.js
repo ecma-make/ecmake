@@ -1,20 +1,7 @@
 require('chai').should();
-const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 const ProjectFixture = require('../../../lib/testing/projectFixture');
-
-function exists(p) {
-  try {
-    fs.accessSync(p);
-    return true;
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return false;
-    }
-    throw error;
-  }
-}
 
 describe('--version', function x() {
   this.timeout(5000);
@@ -40,9 +27,9 @@ describe('--version', function x() {
       'node_modules',
       '@ecmake',
       'ecmake',
-      'package.json'
+      'package.json',
     );
-    const pkg = require(packageFile);
+    const pkg = require(packageFile); // eslint-disable-line
     version.should.include(pkg.version);
   });
 });
