@@ -14,7 +14,7 @@ describe('--options', function x() {
   let fixture;
 
   before(() => {
-    fixture = new ProjectFixture(true);
+    fixture = new ProjectFixture();
     fixture.setUp();
   });
 
