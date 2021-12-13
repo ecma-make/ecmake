@@ -20,6 +20,14 @@ describe('--help', function x() {
     fixture.tearDown();
   });
 
+  it('should display the help for <ecmake -h>', () => {
+    const fixture = new ProjectFixture(true);
+    fixture.setUp();
+    const result = cp.execSync('npx ecmake -h').toString();
+    isHelp(result).should.be.true;
+    fixture.tearDown();
+  });
+
   it('should display the help for <ecmake>, if ecmakeCode is NOT set up', () => {
     const fixture = new ProjectFixture(false);
     fixture.setUp();
