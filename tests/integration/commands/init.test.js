@@ -27,24 +27,17 @@ describe('--init', function x() {
     fixture.tearDown();
   });
 
-  it('should create ./ecmakeCode.js for <ecmake --init> as a copy of [...]/templates/ecmakeCode.init.js', (done) => {
-    cp.exec('npx ecmake --init', () => {
-      const p1 = fsp.readFile(templateFile, 'utf8');
-      const p2 = fsp.readFile(codeFile, 'utf8');
-      Promise.all([p1, p2]).then((values) => {
-        values[0].should.be.equal(values[1]);
-        done();
-      });
-    });
-  });
-
-  it('should create ./ecmakeCode.js for <ecmake -i> as a copy of [...]/templates/ecmakeCode.init.js', (done) => {
-    cp.exec('npx ecmake -i', () => {
-      const p1 = fsp.readFile(templateFile, 'utf8');
-      const p2 = fsp.readFile(codeFile, 'utf8');
-      Promise.all([p1, p2]).then((values) => {
-        values[0].should.be.equal(values[1]);
-        done();
+  ['--init', '-i'].forEach((arg) => {
+    describe(`ecmake ${arg}`, () => {
+      it('should create ecmakeCode.js from templates/ecmakeCode.init.js', (done) => {
+        cp.exec(`npx ecmake ${arg}`, () => {
+          const p1 = fsp.readFile(templateFile, 'utf8');
+          const p2 = fsp.readFile(codeFile, 'utf8');
+          Promise.all([p1, p2]).then((values) => {
+            values[0].should.be.equal(values[1]);
+            done();
+          });
+        });
       });
     });
   });
