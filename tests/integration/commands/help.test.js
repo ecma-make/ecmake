@@ -12,38 +12,45 @@ function isHelp(result) {
 describe('--help', function x() {
   this.timeout(5000);
 
-  it('should display the help for <ecmake --help>', () => {
-    const fixture = new ProjectFixture();
+  let fixture;
+
+  before(() => {
+    fixture = new ProjectFixture();
     fixture.setUp();
-    const result = cp.execSync('npx ecmake --help').toString();
-    isHelp(result).should.be.true;
+  });
+
+  after(() => {
     fixture.tearDown();
   });
 
-  it('should display the help for <ecmake -h>', () => {
-    const fixture = new ProjectFixture();
-    fixture.setUp();
-    const result = cp.execSync('npx ecmake -h').toString();
-    isHelp(result).should.be.true;
-    fixture.tearDown();
-  });
-
-  it('should display the help for <ecmake>, if ecmakeCode.js is NOT set up', () => {
-    const fixture = new ProjectFixture();
-    fixture.setUp();
+  afterEach(() => {
+    fixture.removeCodeFile();
     fixture.hasCodeFile().should.be.false;
-    const result = cp.execSync('npx ecmake').toString();
-    isHelp(result).should.be.true;
-    fixture.tearDown();
   });
 
-  it('should NOT display the help for <ecmake>, if ecmakeCode.js IS set up', () => {
-    const fixture = new ProjectFixture();
-    fixture.setUp();
-    fixture.initCodeFile();
-    fixture.hasCodeFile().should.be.true;
-    const result = cp.execSync('npx ecmake').toString();
-    isHelp(result).should.be.false;
-    fixture.tearDown();
+  ['--help', '-h'].forEach((arg) => {
+    describe(`ecmake ${arg}`, () => {
+      let result;
+      before(() => {
+        result = cp.execSync(`npx ecmake ${arg}`).toString();
+      });
+      it('should display the help', () => {
+        isHelp(result).should.be.true;
+      });
+    });
+  });
+
+  describe('ecmake', () => {
+    it('should display the help, if ecmakeCode.js is NOT set up', () => {
+      fixture.hasCodeFile().should.be.false;
+      const result = cp.execSync('npx ecmake').toString();
+      isHelp(result).should.be.true;
+    });
+
+    it('should NOT display the help, if ecmakeCode.js IS set up', () => {
+      fixture.initCodeFile();
+      const result = cp.execSync('npx ecmake').toString();
+      isHelp(result).should.be.false;
+    });
   });
 });
