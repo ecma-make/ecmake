@@ -21,41 +21,24 @@ describe('--tree', function x() {
     fixture.tearDown();
   });
 
-  describe('ecmake --tree', () => {
-    let text;
-    before(() => {
-      text = cp.execSync('npx ecmake --tree').toString();
-    });
-
-    it('should contain the headline', () => {
-      text.should.include(headline);
-    });
-
-    it('should contain all of the tree nodes in sorted order', () => {
-      let i = 0;
-      text.match(/[^\n]+/g).forEach((line) => {
-        i += line.trim() === sorted[i] ? 1 : 0;
+  ['--tree', '-t'].forEach((arg) => {
+    describe(`ecmake ${arg}`, () => {
+      let text;
+      before(() => {
+        text = cp.execSync('npx ecmake -t').toString();
       });
-      i.should.equal(sorted.length);
-    });
-  });
 
-  describe('ecmake -t', () => {
-    let text;
-    before(() => {
-      text = cp.execSync('npx ecmake -t').toString();
-    });
-
-    it('should contain the headline', () => {
-      text.should.include(headline);
-    });
-
-    it('should contain all of the tree nodes in sorted order', () => {
-      let i = 0;
-      text.match(/[^\n]+/g).forEach((line) => {
-        i += line.trim() === sorted[i] ? 1 : 0;
+      it('should contain the headline', () => {
+        text.should.include(headline);
       });
-      i.should.equal(sorted.length);
+
+      it('should contain all of the tree nodes in sorted order', () => {
+        let i = 0;
+        text.match(/[^\n]+/g).forEach((line) => {
+          i += line.trim() === sorted[i] ? 1 : 0;
+        });
+        i.should.equal(sorted.length);
+      });
     });
   });
 });
