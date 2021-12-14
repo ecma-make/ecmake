@@ -6,7 +6,6 @@ const ProjectFixture = require('../../../lib/testing/projectFixture');
 describe('--version', function x() {
   this.timeout(5000);
   let fixture;
-  let version;
   let pkg;
 
   before(() => {
@@ -20,18 +19,20 @@ describe('--version', function x() {
     fixture.tearDown();
   });
 
-  it('should display a version number for <ecmake --version>', () => {
-    version = cp.execSync('npx ecmake --version').toString();
-    version.should.match(/^\d+\.\d+\.\d+\n$/);
-  });
+  ['--version', '-v'].forEach((arg) => {
+    describe(`ecmake ${arg}`, () => {
+      let version;
+      before(() => {
+        version = cp.execSync(`npx ecmake ${arg}`).toString();
+      });
 
-  it('should display a version number for <ecmake -v>', () => {
-    version = cp.execSync('npx ecmake -v').toString();
-    version.should.match(/^\d+\.\d+\.\d+\n$/);
-  });
+      it('should display a version number', () => {
+        version.should.match(/^\d+\.\d+\.\d+\n$/);
+      });
 
-  it('should display the version number of package.json', () => {
-    version = cp.execSync('npx ecmake --version').toString();
-    version.should.include(pkg.version);
+      it('should display the version number of package.json', () => {
+        version.should.include(pkg.version);
+      });
+    });
   });
 });
