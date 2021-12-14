@@ -18,7 +18,7 @@ describe('--target', function x() {
   };
 
   function meetsExpectations(text, order) {
-    if(order.length === 0) return true;
+    if (order.length === 0) return true;
     let i = 0;
     text.match(/[^\n]+/g).forEach((line) => {
       i += line.includes(order[i]) ? 1 : 0;
