@@ -25,7 +25,7 @@ describe('--tree', function x() {
     describe(`ecmake ${arg}`, () => {
       let text;
       before(() => {
-        text = cp.execSync('npx ecmake -t').toString();
+        text = cp.execSync(`npx ecmake ${arg}`).toString();
       });
 
       it('should contain the headline', () => {
