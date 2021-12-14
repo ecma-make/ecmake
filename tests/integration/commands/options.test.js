@@ -2,11 +2,28 @@ require('chai').should();
 const cp = require('child_process');
 const ProjectFixture = require('../../../lib/testing/projectFixture');
 
-function isOptions(text) {
+function isOptionsOnly(text) {
   const options = text.includes('Options');
   const noSurprises = 'Getting started, Synopsis, Examples, Terminology'.split(/, */)
     .filter((title) => text.includes(title)).length === 0;
   return (options && noSurprises);
+}
+
+function hasAllShortOptionOptions(text) {
+  const options = 'list descriptions tree awaits base code init help options version'
+    .split(' ').map((o) => `--${o}`);
+  const lines = text.match(/[^\n]+/g).filter((line) => line.includes('--'));
+  return options.every((option) => lines.some((line) => {
+    const match = line.match(/-(.),/);
+    const hasShortOption = (match && match[1] === option.substring(2, 3));
+    const hasOption = line.includes(option);
+    return (hasShortOption && hasOption);
+  }));
+}
+
+function hasTheTargetOptionWithoutShortOption(text) {
+  const lines = text.match(/[^\n]+/g).filter((line) => line.includes('--'));
+  return lines.some((line) => (line.includes('--target') && (!line.match(/-.,/))));
 }
 
 describe('--options', function x() {
@@ -20,13 +37,24 @@ describe('--options', function x() {
 
   after(() => fixture.tearDown());
 
-  it('should display the options for <ecmake --options>', () => {
-    const result = cp.execSync('npx ecmake --options').toString();
-    isOptions(result).should.be.true;
-  });
+  ['--options', '-o'].forEach((commandLineArgument) => {
+    describe(`ecmake ${commandLineArgument}`, () => {
+      let result;
+      before(() => {
+        result = cp.execSync(`npx ecmake ${commandLineArgument}`).toString();
+      });
 
-  it('should display the options for <ecmake -o>', () => {
-    const result = cp.execSync('npx ecmake -o').toString();
-    isOptions(result).should.be.true;
+      it('should display the options section only', () => {
+        isOptionsOnly(result).should.be.true;
+      });
+
+      it('should display all options that have a matching short option', () => {
+        hasAllShortOptionOptions(result).should.be.true;
+      });
+
+      it('should display the default option without a short option', () => {
+        hasTheTargetOptionWithoutShortOption(result).should.be.true;
+      });
+    });
   });
 });

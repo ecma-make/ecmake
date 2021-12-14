@@ -33,7 +33,7 @@ describe('--tree', function x() {
 
     it('should contain all of the tree nodes in sorted order', () => {
       let i = 0;
-      text.match(/[^\n]+/g).forEach(line => {
+      text.match(/[^\n]+/g).forEach((line) => {
         i += line.trim() === sorted[i] ? 1 : 0;
       });
       i.should.equal(sorted.length);
@@ -52,7 +52,7 @@ describe('--tree', function x() {
 
     it('should contain all of the tree nodes in sorted order', () => {
       let i = 0;
-      text.match(/[^\n]+/g).forEach(line => {
+      text.match(/[^\n]+/g).forEach((line) => {
         i += line.trim() === sorted[i] ? 1 : 0;
       });
       i.should.equal(sorted.length);
