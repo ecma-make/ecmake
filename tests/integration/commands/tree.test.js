@@ -32,7 +32,7 @@ describe('--tree', function x() {
         text.should.include(headline);
       });
 
-      it('should contain all of the tree nodes in sorted order', () => {
+      it('should contain all of the tree paths in sorted order', () => {
         let i = 0;
         text.match(/[^\n]+/g).forEach((line) => {
           i += line.trim() === sorted[i] ? 1 : 0;
