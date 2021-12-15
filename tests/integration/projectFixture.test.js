@@ -95,15 +95,18 @@ describe('ProjectFixture', function x() {
   describe('codeFile management', () => {
     const codeFile = 'ecmakeCode.js';
     const otherCodeFile = 'otherEcmakeCode.js';
+    const directoryCodeFile = path.join('one', 'two', 'ecmakeCode.js');
     let projectFixture;
     let codeFilePath;
     let otherCodeFilePath;
+    let directoryCodeFilePath;
 
     before(() => {
       projectFixture = new ProjectFixture();
       projectFixture.setUp();
       codeFilePath = path.resolve(codeFile);
       otherCodeFilePath = path.resolve(otherCodeFile);
+      directoryCodeFilePath = path.resolve(directoryCodeFile);
     });
 
     after(() => {
@@ -125,6 +128,10 @@ describe('ProjectFixture', function x() {
       it('should create a target given as argument', () => {
         projectFixture.initCodeFile(otherCodeFile);
         projectFixture.pathExists(otherCodeFilePath);
+      });
+      it('should create a target with parent directories', () => {
+        projectFixture.initCodeFile(directoryCodeFile);
+        projectFixture.pathExists(directoryCodeFilePath);
       });
     });
 
