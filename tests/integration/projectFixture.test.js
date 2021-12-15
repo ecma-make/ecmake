@@ -23,43 +23,79 @@ describe('ProjectFixture', function x() {
   });
 
   describe('setUp', () => {
-    let projectFixture;
-    let base;
+    describe('without project base offset', () => {
+      let projectFixture;
 
-    before(() => {
-      projectFixture = new ProjectFixture();
-      projectFixture.setUp();
-      base = projectFixture.workingDirectory;
+      before(() => {
+        projectFixture = new ProjectFixture();
+        projectFixture.setUp();
+      });
+
+      after(() => {
+        projectFixture.tearDown();
+      });
+
+      it('should set fixture.isUp to true', () => {
+        projectFixture.isUp.should.be.true;
+      });
+
+      it('should use the prefix', () => {
+        projectFixture.workingDirectory.should.include('ecmake');
+      });
+
+      it('should be identical in workingDirectory and projectBase', () => {
+        projectFixture.workingDirectory.should.equal(
+          projectFixture.projectBase,
+        );
+      });
+
+      it('should setup a temporary base directory ', () => {
+        projectFixture.pathExists('').should.be.true;
+      });
+
+      it('should change into the temporary directory', () => {
+        process.cwd().should.equal(projectFixture.workingDirectory);
+      });
+
+      it('should have initialized a new project', () => {
+        projectFixture.pathExists('package.json').should.be.true;
+      });
+
+      it('should have linked @ecmake/ecmake', () => {
+        const pkg = path.join('node_modules', '@ecmake', 'ecmake');
+        projectFixture.pathExists(pkg).should.be.true;
+      });
     });
 
-    after(() => {
-      projectFixture.tearDown();
-    });
+    describe('with project base offset', () => {
+      let projectFixture;
+      const baseOffset = path.join('one', 'two');
+      let workingDirectory;
+      let projectBase;
 
-    it('should set fixture.isUp to true', () => {
-      projectFixture.isUp.should.be.true;
-    });
+      before(() => {
+        projectFixture = new ProjectFixture();
+        projectFixture.setUp(baseOffset);
+        workingDirectory = projectFixture.workingDirectory;
+        projectBase = projectFixture.projectBase;
+      });
 
-    it('should use the prefix', () => {
-      base.should.include('ecmake');
-    });
+      after(() => {
+        projectFixture.tearDown();
+      });
 
-    it('should setup a temporary base directory ', () => {
-      projectFixture.pathExists(base).should.be.true;
-    });
+      it('should create project base with the given argument as an offset', () => {
+        projectBase.should.equal(path.join(workingDirectory, baseOffset));
+      });
 
-    it('should change into the temporary directory', () => {
-      process.cwd().should.equal(base);
-    });
+      it('should have initialized a new project in project base', () => {
+        projectFixture.pathExists('package.json').should.be.true;
+      });
 
-    it('should have initialized a new project', () => {
-      const pkg = path.join(base, 'package.json');
-      projectFixture.pathExists(pkg).should.be.true;
-    });
-
-    it('should have linked @ecmake/ecmake', () => {
-      const pkg = path.resolve(base, 'node_modules', '@ecmake', 'ecmake');
-      projectFixture.pathExists(pkg).should.be.true;
+      it('should have linked @ecmake/ecmake', () => {
+        const pkg = path.join('node_modules', '@ecmake', 'ecmake');
+        projectFixture.pathExists(pkg).should.be.true;
+      });
     });
   });
 
@@ -73,7 +109,7 @@ describe('ProjectFixture', function x() {
       projectFixture = new ProjectFixture();
       projectFixture.setUp();
       base = projectFixture.workingDirectory;
-      projectFixture.pathExists(base).should.be.true;
+      projectFixture.pathExists('').should.be.true;
       projectFixture.tearDown();
     });
 
@@ -123,56 +159,78 @@ describe('ProjectFixture', function x() {
       }
     });
 
-    ['initCodeFile', 'hasCodeFile', 'removeCodeFile', 'pathExists', 'tearDown']
+    ['initCodeFile', 'hasCodeFile', 'removeCodeFile', 'pathExists',
+      'getFullPathWithChecks', 'tearDown']
       .forEach((method) => {
         it(`should warn ${method} of a teared down fixture`, () => {
           try {
             projectFixture[method]();
+            throw new Error('should not be reached');
           } catch (error) {
-          // console.log(error);
             error.code.should.equal('ecmakeFixtureDown');
           }
         });
       });
   });
 
+  describe('getFullPathWithChecks', () => {
+    let projectFixture;
+
+    beforeEach(() => {
+      projectFixture = new ProjectFixture();
+    });
+
+    afterEach(() => {
+      projectFixture.tearDown();
+    });
+
+    it('should throw for absolute pathes', () => {
+      projectFixture.setUp();
+      try {
+        projectFixture.getFullPathWithChecks(path.resolve('.'));
+        throw new Error('should not be reached');
+      } catch (error) {
+        error.code.should.equal('ecmakeAbsolutePathError');
+      }
+    });
+
+    it('should base path on project base', () => {
+      const base = path.join('path', 'to', 'project', 'base');
+      projectFixture.setUp(base);
+      const result = projectFixture.getFullPathWithChecks('three');
+      const expected = path.resolve(projectFixture.projectBase, 'three');
+      result.should.equal(expected);
+    });
+  });
+
   describe('pathExists', () => {
     let projectFixture;
-    let base;
-    const initialDirectory = process.cwd();
 
     before(() => {
       projectFixture = new ProjectFixture();
       projectFixture.setUp();
-      base = projectFixture.workingDirectory;
     });
 
     after(() => {
       projectFixture.tearDown();
     });
 
+    it('should return true for ""', () => {
+      projectFixture.pathExists('').should.be.true;
+    });
+
     it('should return true for an existing directory', () => {
-      const p = path.join(base, 'node_modules');
-      projectFixture.pathExists(p).should.be.true;
+      projectFixture.pathExists('node_modules').should.be.true;
     });
 
     it('should return false for a non-existing directory', () => {
-      const p = path.join(base, 'foo');
-      projectFixture.pathExists(p).should.be.false;
-    });
-
-    it('throw an Error for a path outside of the project fixture', () => {
-      try {
-        projectFixture.pathExists(initialDirectory);
-        throw new Error('must not be reached');
-      } catch (error) {
-        error.message.should.include('outside of the project fixture');
-      }
+      projectFixture.pathExists('foo').should.be.false;
     });
   });
 
   describe('codeFile management', () => {
     let projectFixture;
+    const base = path.join('one', 'two');
     // input targets
     const codeFile = 'ecmakeCode.js';
     const otherCodeFile = 'otherEcmakeCode.js';
@@ -186,11 +244,11 @@ describe('ProjectFixture', function x() {
 
     before(() => {
       projectFixture = new ProjectFixture();
-      projectFixture.setUp();
-      codeFilePath = path.resolve(codeFile);
-      otherCodeFilePath = path.resolve(otherCodeFile);
-      directoryCodeFilePath = path.resolve(directoryCodeFile);
-      directoryCodeFileRootPath = path.resolve(directoryCodeFileRoot);
+      projectFixture.setUp(base);
+      codeFilePath = path.resolve(base, codeFile);
+      otherCodeFilePath = path.resolve(base, otherCodeFile);
+      directoryCodeFilePath = path.resolve(base, directoryCodeFile);
+      directoryCodeFileRootPath = path.resolve(base, directoryCodeFileRoot);
     });
 
     after(() => {
@@ -201,25 +259,25 @@ describe('ProjectFixture', function x() {
       fs.rmSync(codeFilePath, { force: true });
       fs.rmSync(otherCodeFilePath, { force: true });
       fs.rmSync(directoryCodeFileRootPath, { force: true, recursive: true });
-      projectFixture.pathExists(codeFilePath).should.be.false;
-      projectFixture.pathExists(otherCodeFilePath).should.be.false;
-      projectFixture.pathExists(directoryCodeFileRootPath).should.be.false;
+      projectFixture.pathExists(codeFile).should.be.false;
+      projectFixture.pathExists(otherCodeFile).should.be.false;
+      projectFixture.pathExists(directoryCodeFileRoot).should.be.false;
     });
 
     describe('initCodeFile', () => {
       it('should create ./ecmakeCode.js of the default argument', () => {
         projectFixture.initCodeFile();
-        projectFixture.pathExists(codeFilePath);
+        projectFixture.pathExists(codeFile);
       });
 
       it('should create a given target file', () => {
         projectFixture.initCodeFile(otherCodeFile);
-        projectFixture.pathExists(otherCodeFilePath);
+        projectFixture.pathExists(otherCodeFile);
       });
 
       it('should create a given target recursively with required subdirectories', () => {
         projectFixture.initCodeFile(directoryCodeFile);
-        projectFixture.pathExists(directoryCodeFilePath);
+        projectFixture.pathExists(directoryCodeFile);
       });
     });
 
@@ -262,7 +320,7 @@ describe('ProjectFixture', function x() {
       it('should remove an existing codeFile of the default argument', () => {
         fs.writeFileSync(codeFilePath, '');
         projectFixture.removeCodeFile();
-        projectFixture.pathExists(codeFilePath).should.be.false;
+        projectFixture.pathExists(codeFile).should.be.false;
       });
 
       it('should remove an existing codeFile', () => {
@@ -276,6 +334,7 @@ describe('ProjectFixture', function x() {
         fs.writeFileSync(directoryCodeFilePath, '');
         projectFixture.removeCodeFile(directoryCodeFile);
         projectFixture.pathExists(directoryCodeFile).should.be.false;
+        projectFixture.pathExists(directoryCodeFileRoot).should.be.false;
         projectFixture.pathExists(directoryCodeFileRoot).should.be.false;
       });
 
