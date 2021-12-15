@@ -28,11 +28,16 @@ describe('ProjectFixture', function x() {
 
     before(() => {
       projectFixture = new ProjectFixture();
-      base = projectFixture.setUp();
+      projectFixture.setUp();
+      base = projectFixture.workingDirectory;
     });
 
     after(() => {
       projectFixture.tearDown();
+    });
+
+    it('should set fixture.isUp to true', () => {
+      projectFixture.isUp.should.be.true;
     });
 
     it('should use the prefix', () => {
@@ -66,24 +71,69 @@ describe('ProjectFixture', function x() {
     before(() => {
       originalDirectory = process.cwd();
       projectFixture = new ProjectFixture();
-      base = projectFixture.setUp();
+      projectFixture.setUp();
+      base = projectFixture.workingDirectory;
       projectFixture.pathExists(base).should.be.true;
       projectFixture.tearDown();
-      projectFixture.pathExists(base).should.be.false;
-      process.cwd().should.equal(originalDirectory);
     });
 
     after(() => {
-      projectFixture.pathExists(base).should.be.false;
+      try {
+        fs.accessSync(base);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    });
+
+    it('should set fixture.isUp to false', () => {
+      projectFixture.isUp.should.be.false;
     });
 
     it('should tear down a temporary base directory ', () => {
-      projectFixture.pathExists(base).should.be.false;
+      try {
+        fs.accessSync(base);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
     });
 
     it('should change back to the original working directory', () => {
       process.cwd().should.equal(originalDirectory);
     });
+  });
+
+  describe('checkFixture', () => {
+    let projectFixture;
+
+    before(() => {
+      projectFixture = new ProjectFixture();
+      projectFixture.setUp();
+      projectFixture.tearDown(); // close the context immidiatly
+    });
+
+    after(() => {
+      try {
+        projectFixture.tearDown();
+      } catch (error) {
+        if (error.code !== 'ecmakeFixtureDown') throw error;
+      }
+    });
+
+    ['initCodeFile', 'hasCodeFile', 'removeCodeFile', 'pathExists', 'tearDown']
+      .forEach((method) => {
+        it(`should warn ${method} of a teared down fixture`, () => {
+          try {
+            projectFixture[method]();
+          } catch (error) {
+          // console.log(error);
+            error.code.should.equal('ecmakeFixtureDown');
+          }
+        });
+      });
   });
 
   describe('pathExists', () => {
@@ -93,7 +143,8 @@ describe('ProjectFixture', function x() {
 
     before(() => {
       projectFixture = new ProjectFixture();
-      base = projectFixture.setUp();
+      projectFixture.setUp();
+      base = projectFixture.workingDirectory;
     });
 
     after(() => {
