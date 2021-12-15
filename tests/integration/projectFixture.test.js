@@ -93,13 +93,17 @@ describe('ProjectFixture', function x() {
   });
 
   describe('codeFile management', () => {
+    let projectFixture;
+    // input targets
     const codeFile = 'ecmakeCode.js';
     const otherCodeFile = 'otherEcmakeCode.js';
     const directoryCodeFile = path.join('one', 'two', 'ecmakeCode.js');
-    let projectFixture;
+    const directoryCodeFileRoot = path.join('one');
+    // paths of control
     let codeFilePath;
     let otherCodeFilePath;
     let directoryCodeFilePath;
+    let directoryCodeFileRootPath;
 
     before(() => {
       projectFixture = new ProjectFixture();
@@ -107,6 +111,7 @@ describe('ProjectFixture', function x() {
       codeFilePath = path.resolve(codeFile);
       otherCodeFilePath = path.resolve(otherCodeFile);
       directoryCodeFilePath = path.resolve(directoryCodeFile);
+      directoryCodeFileRootPath = path.resolve(directoryCodeFileRoot);
     });
 
     after(() => {
@@ -116,63 +121,82 @@ describe('ProjectFixture', function x() {
     afterEach(() => {
       fs.rmSync(codeFilePath, { force: true });
       fs.rmSync(otherCodeFilePath, { force: true });
+      fs.rmSync(directoryCodeFileRootPath, { force: true, recursive: true });
       projectFixture.pathExists(codeFilePath).should.be.false;
       projectFixture.pathExists(otherCodeFilePath).should.be.false;
+      projectFixture.pathExists(directoryCodeFileRootPath).should.be.false;
     });
 
     describe('initCodeFile', () => {
-      it('should create ./ecmakeCode.js', () => {
+      it('should create ./ecmakeCode.js of the default argument', () => {
         projectFixture.initCodeFile();
         projectFixture.pathExists(codeFilePath);
       });
-      it('should create a target given as argument', () => {
+
+      it('should create a given target file', () => {
         projectFixture.initCodeFile(otherCodeFile);
         projectFixture.pathExists(otherCodeFilePath);
       });
-      it('should create a target with parent directories', () => {
+
+      it('should create a given target recursively with parent directories', () => {
         projectFixture.initCodeFile(directoryCodeFile);
         projectFixture.pathExists(directoryCodeFilePath);
       });
     });
 
     describe('hasCodeFile', () => {
-      it('should return false for a missing codeFile', () => {
+      it('should return false for a missing codeFile of the argument default', () => {
         projectFixture.hasCodeFile().should.be.false;
       });
 
-      it('should return false for a missing codeFile given as argument', () => {
+      it('should return false for a missing codeFile', () => {
         projectFixture.hasCodeFile(otherCodeFile).should.be.false;
       });
 
-      it('should return true for an existing codeFile', () => {
+      it('should return false for a missing codeFile within an existing subdirectory', () => {
+        fs.mkdirSync(path.dirname(directoryCodeFilePath), {recursive: true});
+        projectFixture.hasCodeFile(directoryCodeFile).should.be.false;
+      });
+
+      it('should return false for a missing codeFile within a missing subdirectory', () => {
+        projectFixture.hasCodeFile(directoryCodeFile).should.be.false;
+      });
+
+      it('should return true for an existing codeFile of the argument default', () => {
         fs.writeFileSync(codeFilePath, '');
         projectFixture.hasCodeFile().should.be.true;
       });
 
-      it('should return true for an existing codeFile given as argument', () => {
+      it('should return true for an existing codeFile', () => {
         fs.writeFileSync(otherCodeFilePath, '');
         projectFixture.hasCodeFile(otherCodeFile).should.be.true;
+      });
+
+      it('should return true for an existing codeFile within a subdirectory', () => {
+        fs.mkdirSync(path.dirname(directoryCodeFilePath), {recursive: true});
+        fs.writeFileSync(directoryCodeFilePath, '');
+        projectFixture.hasCodeFile(directoryCodeFile).should.be.true;
       });
     });
 
     describe('removeCodeFile', () => {
-      it('should remove an existing codeFile', () => {
+      it('should remove an existing codeFile of the default argument', () => {
         fs.writeFileSync(codeFilePath, '');
         projectFixture.removeCodeFile();
         projectFixture.pathExists(codeFilePath).should.be.false;
       });
 
-      it('should remove an existing codeFile given by argument', () => {
+      it('should remove an existing codeFile', () => {
         fs.writeFileSync(otherCodeFilePath, '');
         projectFixture.removeCodeFile(otherCodeFile);
         projectFixture.pathExists(otherCodeFile).should.be.false;
       });
 
-      it('should not complain for a missing codeFile', () => {
+      it('should not complain for a missing codeFile of the default argument', () => {
         projectFixture.removeCodeFile();
       });
 
-      it('should not complain for a missing codeFile given by argument', () => {
+      it('should not complain for a missing codeFile', () => {
         projectFixture.removeCodeFile(otherCodeFile);
       });
     });
