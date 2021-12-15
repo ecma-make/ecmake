@@ -58,6 +58,34 @@ describe('ProjectFixture', function x() {
     });
   });
 
+  describe('tearDown', () => {
+    let originalDirectory;
+    let projectFixture;
+    let base;
+
+    before(() => {
+      originalDirectory = process.cwd();
+      projectFixture = new ProjectFixture();
+      base = projectFixture.setUp();
+      projectFixture.pathExists(base).should.be.true;
+      projectFixture.tearDown();
+      projectFixture.pathExists(base).should.be.false;
+      process.cwd().should.equal(originalDirectory);
+    });
+
+    after(() => {
+      projectFixture.pathExists(base).should.be.false;
+    });
+
+    it('should tear down a temporary base directory ', () => {
+      projectFixture.pathExists(base).should.be.false;
+    });
+
+    it('should change back to the original working directory', () => {
+      process.cwd().should.equal(originalDirectory);
+    });
+  });
+
   describe('pathExists', () => {
     let projectFixture;
     let base;
@@ -138,7 +166,7 @@ describe('ProjectFixture', function x() {
         projectFixture.pathExists(otherCodeFilePath);
       });
 
-      it('should create a given target recursively with parent directories', () => {
+      it('should create a given target recursively with required subdirectories', () => {
         projectFixture.initCodeFile(directoryCodeFile);
         projectFixture.pathExists(directoryCodeFilePath);
       });
@@ -154,7 +182,7 @@ describe('ProjectFixture', function x() {
       });
 
       it('should return false for a missing codeFile within an existing subdirectory', () => {
-        fs.mkdirSync(path.dirname(directoryCodeFilePath), {recursive: true});
+        fs.mkdirSync(path.dirname(directoryCodeFilePath), { recursive: true });
         projectFixture.hasCodeFile(directoryCodeFile).should.be.false;
       });
 
@@ -173,7 +201,7 @@ describe('ProjectFixture', function x() {
       });
 
       it('should return true for an existing codeFile within a subdirectory', () => {
-        fs.mkdirSync(path.dirname(directoryCodeFilePath), {recursive: true});
+        fs.mkdirSync(path.dirname(directoryCodeFilePath), { recursive: true });
         fs.writeFileSync(directoryCodeFilePath, '');
         projectFixture.hasCodeFile(directoryCodeFile).should.be.true;
       });
@@ -192,41 +220,49 @@ describe('ProjectFixture', function x() {
         projectFixture.pathExists(otherCodeFile).should.be.false;
       });
 
-      it('should not complain for a missing codeFile of the default argument', () => {
-        projectFixture.removeCodeFile();
+      it('should remove an existing codeFile and the parent folders up to base', () => {
+        fs.mkdirSync(path.dirname(directoryCodeFilePath), { recursive: true });
+        fs.writeFileSync(directoryCodeFilePath, '');
+        projectFixture.removeCodeFile(directoryCodeFile);
+        projectFixture.pathExists(directoryCodeFile).should.be.false;
+        projectFixture.pathExists(directoryCodeFileRoot).should.be.false;
       });
 
-      it('should not complain for a missing codeFile', () => {
-        projectFixture.removeCodeFile(otherCodeFile);
+      it('should stop removing if a folder is not empty', () => {
+        fs.mkdirSync(path.dirname(directoryCodeFilePath), { recursive: true });
+        fs.writeFileSync(path.join(directoryCodeFileRootPath, 'stopper.txt'), '');
+        fs.writeFileSync(directoryCodeFilePath, '');
+        projectFixture.removeCodeFile(directoryCodeFile);
+        projectFixture.pathExists(directoryCodeFile).should.be.false;
+        projectFixture.pathExists(directoryCodeFileRoot).should.be.true;
       });
-    });
-  });
 
-  describe('tearDown', () => {
-    let originalDirectory;
-    let projectFixture;
-    let base;
+      it('should complain of a missing codeFile of the default argument', () => {
+        try {
+          projectFixture.removeCodeFile();
+          throw new Error('should not come here');
+        } catch (error) {
+          error.code.should.equal('ENOENT');
+        }
+      });
 
-    before(() => {
-      originalDirectory = process.cwd();
-      projectFixture = new ProjectFixture();
-      base = projectFixture.setUp();
-      projectFixture.pathExists(base).should.be.true;
-      projectFixture.tearDown();
-      projectFixture.pathExists(base).should.be.false;
-      process.cwd().should.equal(originalDirectory);
-    });
+      it('should not complain of a missing codeFile', () => {
+        try {
+          projectFixture.removeCodeFile(otherCodeFile);
+          throw new Error('should not come here');
+        } catch (error) {
+          error.code.should.equal('ENOENT');
+        }
+      });
 
-    after(() => {
-      projectFixture.pathExists(base).should.be.false;
-    });
-
-    it('should tear down a temporary base directory ', () => {
-      projectFixture.pathExists(base).should.be.false;
-    });
-
-    it('should change back to the original working directory', () => {
-      process.cwd().should.equal(originalDirectory);
+      it('should not complain of a missing codeFile within a subdirectory', () => {
+        try {
+          projectFixture.removeCodeFile(directoryCodeFile);
+          throw new Error('should not come here');
+        } catch (error) {
+          error.code.should.equal('ENOENT');
+        }
+      });
     });
   });
 });

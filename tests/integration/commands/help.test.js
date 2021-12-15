@@ -24,8 +24,7 @@ describe('--help', function x() {
   });
 
   afterEach(() => {
-    fixture.removeCodeFile();
-    fixture.hasCodeFile().should.be.false;
+    if (fixture.hasCodeFile()) fixture.removeCodeFile();
   });
 
   ['--help', '-h'].forEach((arg) => {
