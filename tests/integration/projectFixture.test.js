@@ -7,138 +7,144 @@ const ProjectFixture = require('../../lib/testing/projectFixture');
 describe('ProjectFixture', function x() {
   this.timeout(5000);
   describe('constructor', () => {
+    const originalDirectory = process.cwd();
+    const projectFixture = new ProjectFixture();
     it('should be constructable', () => {
-      const projectFixture = new ProjectFixture();
       (projectFixture instanceof ProjectFixture).should.be.true;
     });
     it('should set the prefix', () => {
-      const projectFixture = new ProjectFixture();
       projectFixture.prefix.should.equal('ecmake');
     });
     it('should store the original direcotry', () => {
-      const originalDirectory = process.cwd();
-      const projectFixture = new ProjectFixture();
       projectFixture.originalDirectory.should.equal(originalDirectory);
     });
-  });
-
-  describe('setUp', () => {
-    describe('without project base offset', () => {
-      let projectFixture;
-
-      before(() => {
-        projectFixture = new ProjectFixture();
-        projectFixture.setUp();
-      });
-
-      after(() => {
-        projectFixture.tearDown();
-      });
-
-      it('should set fixture.isUp to true', () => {
-        projectFixture.isUp.should.be.true;
-      });
-
-      it('should use the prefix', () => {
-        projectFixture.workingDirectory.should.include('ecmake');
-      });
-
-      it('should be identical in workingDirectory and projectBase', () => {
-        projectFixture.workingDirectory.should.equal(
-          projectFixture.projectBase,
-        );
-      });
-
-      it('should setup a temporary base directory ', () => {
-        projectFixture.pathExists('').should.be.true;
-      });
-
-      it('should change into the temporary directory', () => {
-        process.cwd().should.equal(projectFixture.workingDirectory);
-      });
-
-      it('should have initialized a new project', () => {
-        projectFixture.pathExists('package.json').should.be.true;
-      });
-
-      it('should have linked @ecmake/ecmake', () => {
-        const pkg = path.join('node_modules', '@ecmake', 'ecmake');
-        projectFixture.pathExists(pkg).should.be.true;
-      });
-    });
-
-    describe('with project base offset', () => {
-      let projectFixture;
-      const baseOffset = path.join('one', 'two');
-      let workingDirectory;
-      let projectBase;
-
-      before(() => {
-        projectFixture = new ProjectFixture();
-        projectFixture.setUp(baseOffset);
-        workingDirectory = projectFixture.workingDirectory;
-        projectBase = projectFixture.projectBase;
-      });
-
-      after(() => {
-        projectFixture.tearDown();
-      });
-
-      it('should create project base with the given argument as an offset', () => {
-        projectBase.should.equal(path.join(workingDirectory, baseOffset));
-      });
-
-      it('should have initialized a new project in project base', () => {
-        projectFixture.pathExists('package.json').should.be.true;
-      });
-
-      it('should have linked @ecmake/ecmake', () => {
-        const pkg = path.join('node_modules', '@ecmake', 'ecmake');
-        projectFixture.pathExists(pkg).should.be.true;
-      });
-    });
-  });
-
-  describe('tearDown', () => {
-    let originalDirectory;
-    let projectFixture;
-    let base;
-
-    before(() => {
-      originalDirectory = process.cwd();
-      projectFixture = new ProjectFixture();
-      projectFixture.setUp();
-      base = projectFixture.workingDirectory;
-      projectFixture.pathExists('').should.be.true;
-      projectFixture.tearDown();
-    });
-
-    after(() => {
-      try {
-        fs.accessSync(base);
-      } catch (error) {
-        if (error.code !== 'ENOENT') {
-          throw error;
-        }
-      }
-    });
-
-    it('should set fixture.isUp to false', () => {
+    it('should initially set isUp to false', () => {
       projectFixture.isUp.should.be.false;
     });
-
-    it('should tear down a temporary base directory ', () => {
-      try {
-        fs.accessSync(base);
-      } catch (error) {
-        if (error.code !== 'ENOENT') {
-          throw error;
-        }
-      }
+    it('should initially set projectBase to undefined', () => {
+      (typeof projectFixture.projectBase).should.equal('undefined');
     });
+    it('should initially set workingDirectory to undefined', () => {
+      (typeof projectFixture.workingDirectory).should.equal('undefined');
+    });
+  });
 
-    it('should change back to the original working directory', () => {
-      process.cwd().should.equal(originalDirectory);
+  [undefined, ['.'], ['one'], ['one', 'two']].forEach((base) => {
+    const offset = base ? path.join(...base) : undefined;
+    const head = offset ? `base: <${offset}>` : 'base: [undefined]';
+    describe(head, () => {
+      describe('setUp', () => {
+        const projectFixture = new ProjectFixture();
+
+        before(() => {
+          if(offset) {
+            projectFixture.setUp(offset);
+          } else {
+            projectFixture.setUp();
+          }
+        });
+
+        after(() => {
+          projectFixture.tearDown();
+        });
+
+        it('should set fixture.isUp to true', () => {
+          projectFixture.isUp.should.be.true;
+        });
+
+        it('should use the prefix', () => {
+          projectFixture.workingDirectory.should.include('ecmake');
+        });
+
+        it('should change into the temporary directory', () => {
+          process.cwd().should.equal(projectFixture.workingDirectory);
+        });
+
+        it('should use the argument offset for the project base', () => {
+          const expected = path.join( projectFixture.workingDirectory, offset ? offset : '');
+          projectFixture.projectBase.should.equal(expected);
+        });
+
+        it('should have created the project base', () => {
+          projectFixture.pathExists('').should.be.true;
+        });
+
+        it('should have initialized a new project', () => {
+          projectFixture.pathExists('package.json').should.be.true;
+        });
+
+        it('should have linked @ecmake/ecmake', () => {
+          const pkg = path.join('node_modules', '@ecmake', 'ecmake');
+          projectFixture.pathExists(pkg).should.be.true;
+        });
+
+      });
+
+      describe('tearDown', () => {
+        describe('shared fixture', () => {
+          let originalDirectory;
+          let intermediateWorkingDirectory;
+          let intermediateProjectBase;
+          const projectFixture = new ProjectFixture();
+
+          before(() => {
+            originalDirectory = process.cwd();
+            if(offset) {
+              projectFixture.setUp(offset);
+            } else {
+              projectFixture.setUp();
+            }
+            intermediateWorkingDirectory = projectFixture.workingDirectory;
+            intermediateProjectBase = projectFixture.projectBase;
+            projectFixture.tearDown();
+          });
+
+          it('should set fixture.isUp to false', () => {
+            projectFixture.isUp.should.be.false;
+          });
+
+          it('should tear down the project base', () => {
+            try {
+              fs.accessSync(intermediateProjectBase);
+            } catch (error) {
+              if (error.code !== 'ENOENT') {
+                throw error;
+              }
+            }
+          });
+
+          it('should tear down the temporary directory ', () => {
+            try {
+              fs.accessSync(intermediateWorkingDirectory);
+            } catch (error) {
+              if (error.code !== 'ENOENT') {
+                throw error;
+              }
+            }
+          });
+
+          it('should change back to the original working directory', () => {
+            process.cwd().should.equal(originalDirectory);
+          });
+        });
+        describe('unshared setup', () => {
+          const projectFixture = new ProjectFixture();
+          it('should fully reset the original state', () => {
+            const before = JSON.stringify(projectFixture);
+            if(offset) {
+              projectFixture.setUp(offset);
+            } else {
+              projectFixture.setUp();
+            }
+            projectFixture.initCodeFile(path.join('one', 'codeFile.js'));
+            const between = JSON.stringify(projectFixture);
+            projectFixture.tearDown();
+            const after = JSON.stringify(projectFixture);
+            after.should.not.equal(between);
+            after.should.equal(before);
+          });
+        });
+      });
     });
   });
 
