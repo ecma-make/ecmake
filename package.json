@@ -9,8 +9,8 @@
   },
   "main": "./lib/index.js",
   "scripts": {
-    "unitTests": "mocha --recursive tests/unit",
-    "integrationTests": "mocha --recursive tests/integration"
+    "unitTests": "mocha --recursive spec/unit",
+    "integrationTests": "mocha --recursive spec/integration"
   },
   "keywords": [
     "node",
