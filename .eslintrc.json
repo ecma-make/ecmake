@@ -16,9 +16,11 @@
     },
     "overrides": [
         {
-            "files": ["*.test.js"],
+            "files": ["*.test.js", "*.spec.js"],
             "rules": {
-                "no-unused-expressions": 0
+                "no-unused-expressions": 0,
+                "prefer-arrow-callback": 0,
+                "func-names": 0
             }
         },
         {
