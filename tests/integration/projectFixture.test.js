@@ -37,7 +37,7 @@ describe('ProjectFixture', function x() {
         const projectFixture = new ProjectFixture();
 
         before(() => {
-          if(offset) {
+          if (offset) {
             projectFixture.setUp(offset);
           } else {
             projectFixture.setUp();
@@ -61,7 +61,7 @@ describe('ProjectFixture', function x() {
         });
 
         it('should use the argument offset for the project base', () => {
-          const expected = path.join( projectFixture.workingDirectory, offset ? offset : '');
+          const expected = path.join(projectFixture.workingDirectory, offset || '');
           projectFixture.projectBase.should.equal(expected);
         });
 
@@ -77,7 +77,6 @@ describe('ProjectFixture', function x() {
           const pkg = path.join('node_modules', '@ecmake', 'ecmake');
           projectFixture.pathExists(pkg).should.be.true;
         });
-
       });
 
       describe('tearDown', () => {
@@ -89,7 +88,7 @@ describe('ProjectFixture', function x() {
 
           before(() => {
             originalDirectory = process.cwd();
-            if(offset) {
+            if (offset) {
               projectFixture.setUp(offset);
             } else {
               projectFixture.setUp();
@@ -131,7 +130,7 @@ describe('ProjectFixture', function x() {
           const projectFixture = new ProjectFixture();
           it('should fully reset the original state', () => {
             const before = JSON.stringify(projectFixture);
-            if(offset) {
+            if (offset) {
               projectFixture.setUp(offset);
             } else {
               projectFixture.setUp();
