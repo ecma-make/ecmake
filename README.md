@@ -301,3 +301,26 @@ task name. However, this rule is not that strict, as the example of
 - **race condition**: If conflicts pop up due to race conditions of two tasks,
   you solve this by declaring a dependency to make sure they are executed in a
   timely order.
+
+## Branches, versions and tags
+
+The versioning follows **Sementic Versioning 2.0.0**, see https://semver.org.
+A version number is composed of three parts *<major.minor.patch>* i.e. *1.3.2*.
+Minor versions introduce features, major versions introduce breaking changes.
+In major version **0** breaking changes may happen all the time.
+
+The branches are **devX**, **betaX**, **stableX** and **latest**. where **X**
+is replaced by a major version. For major version **0** there is only the
+branch *dev0*.  Development is done in the *devX* branches. The beta branches
+are for testing of the next releases. The *stabeX* branches hold the releases.
+The branch *latest* points to stable release with the highest version number.
+
+As major version **0** allows for breaking changes, *dev0* is used as a  never
+ending mainstream of progress, as a general alpha branch. New features are
+ported into the other versions as reasonable. For a common development of new
+features, offsprings of *dev0* can be shared within the repository. Hence, the
+pattern of such branches is *dev0-feature*.
+
+The tags follow the realeases and have the pattern *<v9.9.9>*. For beta
+releases the extension *-beta* is appended to the tag like *<v9.9.9-beta>*.
+
