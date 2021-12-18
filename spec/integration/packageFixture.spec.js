@@ -111,8 +111,8 @@ describe('PackageFixture', function () {
       it('should set isUp to true', function () {
         packageFixture.isUp.should.be.true;
       });
-      it('should link the package globally', function () {
-        packageFixture.getGlobalPackageState().should.equal('linked');
+      it('should leave the global installation empty', function () {
+        (packageFixture.getGlobalPackageState() === null).should.be.true;
       });
     });
     describe('with existing global link', function () {
