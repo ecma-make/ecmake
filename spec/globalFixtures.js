@@ -1,6 +1,10 @@
+const PackageFixture = require('../lib/testing/packageFixture');
+
+const packageFixture = new PackageFixture();
+
 module.exports.mochaGlobalSetup = () => {
-  // console.log('GLOBAL SETUP');
+  packageFixture.setUp();
 };
 module.exports.mochaGlobalTeardown = () => {
-  // console.log('GLOBAL TEARDOWN');
+  packageFixture.tearDown();
 };
