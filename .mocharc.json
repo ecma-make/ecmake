@@ -1,6 +1,6 @@
 {
     "timeout": 5000,
     "recursive": true,
-    "extension": [".test.js", ".spec.js"],
+    "extension": [".spec.js"],
     "require": ["spec/globalFixtures.js"]
 }
