@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "command-line-args": "^5.2.0",
-    "command-line-usage": "^6.1.1"
+    "command-line-usage": "^6.1.1",
+    "supports-color": "^8"
   }
 }
