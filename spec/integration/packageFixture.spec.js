@@ -125,9 +125,7 @@ describe('PackageFixture', function () {
           packageFixture.setUp();
           throw new Error('must not come here');
         } catch (error) {
-          error.code.should.equal(
-            'ECMAKE_PACKAGE_FIXTURE_GLOBAL_INSTALLATION_EXISTS',
-          );
+          (error instanceof PackageFixture.GLOBAL_INSTALLATION_ERROR).should.be.true;
         }
       });
     });
@@ -142,9 +140,7 @@ describe('PackageFixture', function () {
           packageFixture.setUp();
           throw new Error('must not come here');
         } catch (error) {
-          error.code.should.equal(
-            'ECMAKE_PACKAGE_FIXTURE_GLOBAL_INSTALLATION_EXISTS',
-          );
+          (error instanceof PackageFixture.GLOBAL_INSTALLATION_ERROR).should.be.true;
         }
       });
     });
