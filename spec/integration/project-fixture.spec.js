@@ -2,7 +2,7 @@ require('chai').should();
 const path = require('path');
 const fs = require('fs');
 
-const ProjectFixture = require('../../lib/testing/projectFixture');
+const ProjectFixture = require('../..').testing.ProjectFixture;
 
 describe('ProjectFixture', function x() {
   this.timeout(5000);
@@ -237,9 +237,9 @@ describe('ProjectFixture', function x() {
     let projectFixture;
     const base = path.join('one', 'two');
     // input targets
-    const codeFile = 'ecmakeCode.js';
-    const otherCodeFile = 'otherEcmakeCode.js';
-    const directoryCodeFile = path.join('one', 'two', 'ecmakeCode.js');
+    const codeFile = 'ecmake-code.js';
+    const otherCodeFile = 'other-ecmake-code.js';
+    const directoryCodeFile = path.join('one', 'two', 'ecmake-code.js');
     const directoryCodeFileRoot = path.join('one');
     // paths of control
     let codeFilePath;
@@ -270,7 +270,7 @@ describe('ProjectFixture', function x() {
     });
 
     describe('initCodeFile', () => {
-      it('should create ./ecmakeCode.js of the default argument', () => {
+      it('should create ./ecmake-code.js of the default argument', () => {
         projectFixture.initCodeFile();
         projectFixture.pathExists(codeFile);
       });

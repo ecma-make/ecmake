@@ -16,7 +16,7 @@
     },
     "overrides": [
         {
-            "files": ["*.test.js", "*.spec.js"],
+            "files": ["*.spec.js"],
             "rules": {
                 "no-unused-expressions": 0,
                 "prefer-arrow-callback": 0,
@@ -24,7 +24,7 @@
             }
         },
         {
-            "files": ["templates/ecmakeCode*.js"],
+            "files": ["templates/ecmake-code*.js"],
             "rules": {
                 "import/no-extraneous-dependencies": 0,
                 "import/no-unresolved": 0,

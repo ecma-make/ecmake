@@ -17,7 +17,7 @@ modern aproaches make it stand out amoungst other task runners. In the spirit
 of the ecmasript *ecmake* makes intensive use of promises. This allows to
 cleanly scedule dependencies while running tasks in parallel whenever possible.
 
-The makefile `ecmakeCode.js` is a valid *node module* without any new syntax to
+The makefile `ecmake-code.js` is a valid *node module* without any new syntax to
 learn. It is the natural companion of `package.json`. It enters the stage,
 where the scripts section of the json file is reaching the limits.
 
@@ -86,7 +86,7 @@ ecmake --init
 
 For a full reference of the options type `emake --options` and `ecmake --help`.
 
-## `ecmakeCode.js`
+## `ecmake-code.js`
 
 ### A minimal makefile
 
@@ -251,7 +251,7 @@ task name. However, this rule is not that strict, as the example of
   selected *task* called *target*.
 
 - **makefile**: The *makefile* defines the *tasks*. The *default name* is
-  `ecmakeCode.js`. It is a pure node module.
+  `ecmake-code.js`. It is a pure node module.
 
 - **model**: The makefile defines a data model. It consists of a *task tree*
   and assigned *callback functions*.

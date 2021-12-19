@@ -2,7 +2,7 @@ require('chai').should();
 const cp = require('child_process');
 const fsp = require('fs').promises;
 const path = require('path');
-const ProjectFixture = require('../../../lib/testing/projectFixture');
+const ProjectFixture = require('../../..').testing.ProjectFixture;
 
 describe('--init', function x() {
   this.timeout(5000);
@@ -13,13 +13,13 @@ describe('--init', function x() {
   beforeEach(() => {
     fixture = new ProjectFixture();
     fixture.setUp();
-    codeFile = path.resolve('ecmakeCode.js');
+    codeFile = path.resolve('ecmake-code.js');
     templateFile = path.resolve(
       'node_modules',
       '@ecmake',
       'ecmake',
       'templates',
-      'ecmakeCode.init.js',
+      'ecmake-code.init.js',
     );
   });
 
@@ -29,7 +29,7 @@ describe('--init', function x() {
 
   ['--init', '-i'].forEach((arg) => {
     describe(`ecmake ${arg}`, () => {
-      it('should create ecmakeCode.js from templates/ecmakeCode.init.js', (done) => {
+      it('should create ecmake-code.js from templates/ecmake-code.init.js', (done) => {
         cp.exec(`npx ecmake ${arg}`, () => {
           const p1 = fsp.readFile(templateFile, 'utf8');
           const p2 = fsp.readFile(codeFile, 'utf8');

@@ -1,4 +1,4 @@
-{bold makefile}: The {italic makefile} defines the {italic tasks}. The {italic default} name is {bold ecmakeCode.js}. It is a pure ecma module.
+{bold makefile}: The {italic makefile} defines the {italic tasks}. The {italic default} name is {bold ecmake-code.js}. It is a pure ecma module.
 
 {bold runner}: The main job of the {bold ecmake} command line tool is to run the selected {italic target}.
 

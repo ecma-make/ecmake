@@ -1,6 +1,6 @@
 require('chai').should();
 const cp = require('child_process');
-const ProjectFixture = require('../../../lib/testing/projectFixture');
+const ProjectFixture = require('../../..').testing.ProjectFixture;
 
 function isHelp(result) {
   return ('Getting started, Synopsis, Examples, Terminology'.split(/, */)
@@ -40,13 +40,13 @@ describe('--help', function x() {
   });
 
   describe('ecmake', () => {
-    it('should display the help, if ecmakeCode.js is NOT set up', () => {
+    it('should display the help, if ecmake-code.js is NOT set up', () => {
       fixture.hasCodeFile().should.be.false;
       const result = cp.execSync('npx ecmake').toString();
       isHelp(result).should.be.true;
     });
 
-    it('should NOT display the help, if ecmakeCode.js IS set up', () => {
+    it('should NOT display the help, if ecmake-code.js IS set up', () => {
       fixture.initCodeFile();
       const result = cp.execSync('npx ecmake').toString();
       isHelp(result).should.be.false;

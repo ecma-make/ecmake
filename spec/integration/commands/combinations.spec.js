@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 require('chai').should();
-const ProjectFixture = require('../../../lib/testing/projectFixture');
+const ProjectFixture = require('../../..').testing.ProjectFixture;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++
 // expectations
@@ -135,7 +135,7 @@ function setupListingTasks(fixture, base, code) {
 }
 
 function setupUninitialized(fixture, base, code) {
-  const offset = code ? path.join(...code) : 'ecmakeCode.js';
+  const offset = code ? path.join(...code) : 'ecmake-code.js';
   describe('inside uninitialized project', () => {
     describe('--init', () => {
       afterEach(() => {
@@ -178,7 +178,7 @@ function setupUninitialized(fixture, base, code) {
 }
 
 function setupInitialized(fixture, base, code) {
-  const offset = code ? path.join(...code) : 'ecmakeCode.js';
+  const offset = code ? path.join(...code) : 'ecmake-code.js';
   describe('inside initialized project', () => {
     before(() => {
       fixture.initCodeFile(offset);

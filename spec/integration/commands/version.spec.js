@@ -1,7 +1,7 @@
 require('chai').should();
 const path = require('path');
 const cp = require('child_process');
-const ProjectFixture = require('../../../lib/testing/projectFixture');
+const ProjectFixture = require('../../..').testing.ProjectFixture;
 
 describe('--version', function x() {
   this.timeout(5000);
