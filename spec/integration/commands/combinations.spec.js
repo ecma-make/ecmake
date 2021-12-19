@@ -145,8 +145,9 @@ function setupUninitialized(fixture, base, code) {
         describe(command, () => {
           if (code && code.length > 2) {
             it('should should protest for a missing directory', (done) => {
-              cp.exec(command, (error) => {
-                error.toString().should.include('ENOENT');
+              cp.exec(command, (error, stdout, stderr) => {
+                // due to the inner child process thrown errors end up in stderr so far
+                stderr.toString().should.include('ENOENT');
                 fixture.hasCodeFile(offset).should.be.false;
                 done();
               });
