@@ -2,7 +2,7 @@ require('chai').should();
 const cp = require('child_process');
 const fsp = require('fs').promises;
 const path = require('path');
-const ProjectFixture = require('../../..').testing.ProjectFixture;
+const { ProjectFixture } = require('../../..').testing;
 
 describe('--init', function x() {
   this.timeout(5000);

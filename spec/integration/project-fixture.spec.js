@@ -2,7 +2,7 @@ require('chai').should();
 const path = require('path');
 const fs = require('fs');
 
-const ProjectFixture = require('../..').testing.ProjectFixture;
+const { ProjectFixture } = require('../..').testing;
 
 describe('ProjectFixture', function x() {
   this.timeout(5000);

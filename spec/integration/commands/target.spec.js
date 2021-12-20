@@ -1,6 +1,6 @@
 require('chai').should();
 const cp = require('child_process');
-const ProjectFixture = require('../../..').testing.ProjectFixture;
+const { ProjectFixture } = require('../../..').testing;
 
 describe('--target', function x() {
   this.timeout(5000);

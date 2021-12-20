@@ -1,7 +1,7 @@
 require('chai').should();
 const cpr = require('child_process');
 
-const PackageFixture = require('../..').testing.PackageFixture;
+const { PackageFixture } = require('../..').testing;
 
 describe('PackageFixture', function () {
   this.timeout(10000);

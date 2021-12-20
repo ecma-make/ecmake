@@ -1,6 +1,6 @@
 require('chai').should();
 const cp = require('child_process');
-const ProjectFixture = require('../../..').testing.ProjectFixture;
+const { ProjectFixture } = require('../../..').testing;
 
 function isHelp(result) {
   return ('Getting started, Synopsis, Examples, Terminology'.split(/, */)
