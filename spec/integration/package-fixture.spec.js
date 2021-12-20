@@ -125,7 +125,7 @@ describe('PackageFixture', function () {
           packageFixture.setUp();
           throw new Error('must not come here');
         } catch (error) {
-          (error instanceof PackageFixture.GLOBAL_INSTALLATION_ERROR).should.be.true;
+          (error instanceof PackageFixture.GlobalInstallationError).should.be.true;
         }
       });
     });
@@ -140,7 +140,7 @@ describe('PackageFixture', function () {
           packageFixture.setUp();
           throw new Error('must not come here');
         } catch (error) {
-          (error instanceof PackageFixture.GLOBAL_INSTALLATION_ERROR).should.be.true;
+          (error instanceof PackageFixture.GlobalInstallationError).should.be.true;
         }
       });
     });

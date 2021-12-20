@@ -160,7 +160,7 @@ describe('ProjectFixture', function x() {
       try {
         projectFixture.tearDown();
       } catch (error) {
-        if (!(error instanceof ProjectFixture.FIXTURE_DOWN_ERROR)) throw error;
+        if (!(error instanceof ProjectFixture.FixtureDownError)) throw error;
       }
     });
 
@@ -172,7 +172,7 @@ describe('ProjectFixture', function x() {
             projectFixture[method]();
             throw new Error('should not be reached');
           } catch (error) {
-            (error instanceof ProjectFixture.FIXTURE_DOWN_ERROR).should.be.true;
+            (error instanceof ProjectFixture.FixtureDownError).should.be.true;
           }
         });
       });
@@ -195,7 +195,7 @@ describe('ProjectFixture', function x() {
         projectFixture.getFullPathWithChecks(path.resolve('.'));
         throw new Error('should not be reached');
       } catch (error) {
-        (error instanceof ProjectFixture.ABSOLUTE_PATH_ERROR).should.be.true;
+        (error instanceof ProjectFixture.AbsolutePathError).should.be.true;
       }
     });
 
