@@ -5,7 +5,7 @@
   "homepage": "https://github.com/ecma-make/ecmake#readme",
   "url": "https://github.com/ecma-make/ecmake/issues",
   "bin": {
-    "ecmake": "./lib/index.js"
+    "ecmake": "lib/ecmake.js"
   },
   "main": "./lib/index.js",
   "scripts": {
