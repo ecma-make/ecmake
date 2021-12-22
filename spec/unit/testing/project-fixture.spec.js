@@ -2,10 +2,28 @@ require('chai').should();
 const path = require('path');
 const fs = require('fs');
 
-const { ProjectFixture } = require('../..').testing;
+const ProjectFixture  = require('../../../lib/testing/project-fixture');
 
-describe('ProjectFixture', function x() {
-  this.timeout(5000);
+describe('ProjectFixture #slow', function x() {
+  describe('assertError', () => {
+    const error = new Error();
+    it('should pass if the the code does fit', function() {
+      error.code = 'RIGHT';
+      ProjectFixture.assertError(error, 'RIGHT');
+    });
+    it('should return true if the the code does fit', function() {
+      error.code = 'RIGHT';
+      ProjectFixture.assertError(error, 'RIGHT').should.be.true;
+    });
+    it('should throw the error if the code does not fit', function() {
+      error.code = 'WRONG';
+      try {
+        ProjectFixture.assertError(error, 'RIGHT');
+      } catch(catched) {
+        catched.should.equal(error);
+      }
+    });
+  });
   describe('constructor', () => {
     const originalDirectory = process.cwd();
     const projectFixture = new ProjectFixture();
@@ -103,23 +121,25 @@ describe('ProjectFixture', function x() {
           });
 
           it('should tear down the project base', () => {
+            let errorSeen = false;
             try {
               fs.accessSync(intermediateProjectBase);
             } catch (error) {
-              if (error.code !== 'ENOENT') {
-                throw error;
-              }
+              errorSeen = true;
+              (error.code === 'ENOENT').should.be.true;
             }
+            errorSeen.should.be.true;
           });
 
           it('should tear down the temporary directory ', () => {
+            let errorSeen = false;
             try {
               fs.accessSync(intermediateWorkingDirectory);
             } catch (error) {
-              if (error.code !== 'ENOENT') {
-                throw error;
-              }
+              errorSeen = true;
+              (error.code === 'ENOENT').should.be.true;
             }
+            errorSeen.should.be.true;
           });
 
           it('should change back to the original working directory', () => {
@@ -160,20 +180,23 @@ describe('ProjectFixture', function x() {
       try {
         projectFixture.tearDown();
       } catch (error) {
-        if (!(error instanceof ProjectFixture.FixtureDownError)) throw error;
+        (error instanceof ProjectFixture.FixtureDownError).should.be.true;
       }
     });
+
 
     ['initCodeFile', 'hasCodeFile', 'removeCodeFile', 'pathExists',
       'getFullPathWithChecks', 'tearDown']
       .forEach((method) => {
         it(`should warn ${method} of a teared down fixture`, () => {
+          let errorSeen = false;
           try {
             projectFixture[method]();
-            throw new Error('should not be reached');
           } catch (error) {
+            errorSeen = true;
             (error instanceof ProjectFixture.FixtureDownError).should.be.true;
           }
+          errorSeen.should.be.true;
         });
       });
   });
@@ -191,12 +214,14 @@ describe('ProjectFixture', function x() {
 
     it('should throw for absolute pathes', () => {
       projectFixture.setUp();
+      let errorSeen = false;
       try {
         projectFixture.getFullPathWithChecks(path.resolve('.'));
-        throw new Error('should not be reached');
       } catch (error) {
+        errorSeen = true;
         (error instanceof ProjectFixture.AbsolutePathError).should.be.true;
       }
+      errorSeen.should.be.true;
     });
 
     it('should base path on project base', () => {
@@ -239,11 +264,13 @@ describe('ProjectFixture', function x() {
     // input targets
     const codeFile = 'ecmake-code.js';
     const otherCodeFile = 'other-ecmake-code.js';
+    const externalCodeFile = '../../../extra/external-ecmake-code.js';
     const directoryCodeFile = path.join('one', 'two', 'ecmake-code.js');
     const directoryCodeFileRoot = path.join('one');
     // paths of control
     let codeFilePath;
     let otherCodeFilePath;
+    let externalCodeFilePath;
     let directoryCodeFilePath;
     let directoryCodeFileRootPath;
 
@@ -252,6 +279,7 @@ describe('ProjectFixture', function x() {
       projectFixture.setUp(base);
       codeFilePath = path.resolve(base, codeFile);
       otherCodeFilePath = path.resolve(base, otherCodeFile);
+      externalCodeFilePath = path.resolve(base, externalCodeFile);
       directoryCodeFilePath = path.resolve(base, directoryCodeFile);
       directoryCodeFileRootPath = path.resolve(base, directoryCodeFileRoot);
     });
@@ -270,6 +298,17 @@ describe('ProjectFixture', function x() {
     });
 
     describe('initCodeFile', () => {
+      it('should throw if the target path is outside of the project', () => {
+        let errorSeen = false;
+        try {
+          projectFixture.initCodeFile(externalCodeFile);
+        } catch( error ) {
+          errorSeen = true;
+          (error instanceof ProjectFixture.OutsideOfBaseError).should.be.true;
+        }
+        errorSeen.should.be.true;
+      });
+
       it('should create ./ecmake-code.js of the default argument', () => {
         projectFixture.initCodeFile();
         projectFixture.pathExists(codeFile);
@@ -353,30 +392,36 @@ describe('ProjectFixture', function x() {
       });
 
       it('should complain of a missing codeFile of the default argument', () => {
+        let errorSeen = false;
         try {
           projectFixture.removeCodeFile();
-          throw new Error('should not come here');
         } catch (error) {
+          errorSeen = true;
           error.code.should.equal('ENOENT');
         }
+        errorSeen.should.be.true;
       });
 
       it('should not complain of a missing codeFile', () => {
+        let errorSeen = false;
         try {
           projectFixture.removeCodeFile(otherCodeFile);
-          throw new Error('should not come here');
         } catch (error) {
+          errorSeen = true;
           error.code.should.equal('ENOENT');
         }
+        errorSeen.should.be.true;
       });
 
       it('should not complain of a missing codeFile within a subdirectory', () => {
+        let errorSeen = false;
         try {
           projectFixture.removeCodeFile(directoryCodeFile);
-          throw new Error('should not come here');
         } catch (error) {
+          errorSeen = true;
           error.code.should.equal('ENOENT');
         }
+        errorSeen.should.be.true;
       });
     });
   });

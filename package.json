@@ -12,6 +12,10 @@
     "unitTests": "mocha --recursive spec/unit",
     "integrationTests": "mocha --recursive spec/integration"
   },
+  "nyc": {
+      "include": "lib",
+      "exclude": ""
+  },
   "keywords": [
     "node",
     "ecma",

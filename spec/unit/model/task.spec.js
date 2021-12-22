@@ -1,11 +1,21 @@
 require('chai').should();
 const { expect } = require('chai');
 
-const { Task } = require('../..');
+const Task = require('../../../lib/model/task');
+const modelIndex = require('../../../lib/model');
+const mainIndex = require('../../..');
 
 describe('Task', () => {
   const description = 'some description of a task';
   const dependencies = ['a', 'b', 'c'];
+
+  it('should be exported by the main index', function () {
+    Task.should.equal(mainIndex.Task);
+  });
+
+  it('should be exported by the model index', function () {
+    Task.should.equal(modelIndex.Task);
+  });
 
   describe('constructor', () => {
     it('should create a Task', () => {
@@ -133,6 +143,31 @@ describe('Task', () => {
       const task3 = new Task().awaits(task1, task2)
         .will(() => [task1.result, task2.result]);
       return task3.go().then(() => task3.result.should.deep.equal([1, 2]));
+    });
+    it('should should reject upon error to stop the further execution', () => {
+      let error = new Error('break');
+      let errorThrown = false;
+      let errorCatched = false;
+      let dependentDone = false;
+      const breakingTask = new Task()
+        .will(() => {
+          errorThrown = true;
+          throw error;
+        });
+      const dependingTask = new Task()
+        .awaits(breakingTask)
+        .will(() => {
+          // must not be executed
+          dependentDone = true;
+        });
+      return dependingTask.go().catch((error) => {
+        error.should.equal(error);
+        errorCatched = true;
+      }).then(() => {
+        errorThrown.should.be.true;
+        errorCatched.should.be.true;
+        dependentDone.should.be.false;
+      });
     });
   });
 
