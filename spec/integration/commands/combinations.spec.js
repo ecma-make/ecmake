@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 require('chai').should();
-const { ProjectFixture } = require('../../..').testing;
+
+const lib = '../../../lib';
+const ProjectFixture = require(`${lib}/testing/project-fixture`);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++
 // expectations

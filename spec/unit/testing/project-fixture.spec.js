@@ -2,7 +2,8 @@ require('chai').should();
 const path = require('path');
 const fs = require('fs');
 
-const ProjectFixture = require('../../../lib/testing/project-fixture');
+const lib = '../../../lib';
+const ProjectFixture = require(`${lib}/testing/project-fixture`);
 
 describe('ProjectFixture #slow', function x() {
   describe('assertError', () => {
