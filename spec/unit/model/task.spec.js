@@ -145,14 +145,14 @@ describe('Task', () => {
       return task3.go().then(() => task3.result.should.deep.equal([1, 2]));
     });
     it('should should reject upon error to stop the further execution', () => {
-      let error = new Error('break');
+      const myError = new Error('break');
       let errorThrown = false;
       let errorCatched = false;
       let dependentDone = false;
       const breakingTask = new Task()
         .will(() => {
           errorThrown = true;
-          throw error;
+          throw myError;
         });
       const dependingTask = new Task()
         .awaits(breakingTask)
@@ -160,8 +160,8 @@ describe('Task', () => {
           // must not be executed
           dependentDone = true;
         });
-      return dependingTask.go().catch((error) => {
-        error.should.equal(error);
+      return dependingTask.go().catch((e) => {
+        e.should.equal(myError);
         errorCatched = true;
       }).then(() => {
         errorThrown.should.be.true;

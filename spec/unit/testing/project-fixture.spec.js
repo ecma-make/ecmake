@@ -2,24 +2,24 @@ require('chai').should();
 const path = require('path');
 const fs = require('fs');
 
-const ProjectFixture  = require('../../../lib/testing/project-fixture');
+const ProjectFixture = require('../../../lib/testing/project-fixture');
 
 describe('ProjectFixture #slow', function x() {
   describe('assertError', () => {
     const error = new Error();
-    it('should pass if the the code does fit', function() {
+    it('should pass if the the code does fit', function () {
       error.code = 'RIGHT';
       ProjectFixture.assertError(error, 'RIGHT');
     });
-    it('should return true if the the code does fit', function() {
+    it('should return true if the the code does fit', function () {
       error.code = 'RIGHT';
       ProjectFixture.assertError(error, 'RIGHT').should.be.true;
     });
-    it('should throw the error if the code does not fit', function() {
+    it('should throw the error if the code does not fit', function () {
       error.code = 'WRONG';
       try {
         ProjectFixture.assertError(error, 'RIGHT');
-      } catch(catched) {
+      } catch (catched) {
         catched.should.equal(error);
       }
     });
@@ -184,7 +184,6 @@ describe('ProjectFixture #slow', function x() {
       }
     });
 
-
     ['initCodeFile', 'hasCodeFile', 'removeCodeFile', 'pathExists',
       'getFullPathWithChecks', 'tearDown']
       .forEach((method) => {
@@ -270,7 +269,6 @@ describe('ProjectFixture #slow', function x() {
     // paths of control
     let codeFilePath;
     let otherCodeFilePath;
-    let externalCodeFilePath;
     let directoryCodeFilePath;
     let directoryCodeFileRootPath;
 
@@ -279,7 +277,6 @@ describe('ProjectFixture #slow', function x() {
       projectFixture.setUp(base);
       codeFilePath = path.resolve(base, codeFile);
       otherCodeFilePath = path.resolve(base, otherCodeFile);
-      externalCodeFilePath = path.resolve(base, externalCodeFile);
       directoryCodeFilePath = path.resolve(base, directoryCodeFile);
       directoryCodeFileRootPath = path.resolve(base, directoryCodeFileRoot);
     });
@@ -302,7 +299,7 @@ describe('ProjectFixture #slow', function x() {
         let errorSeen = false;
         try {
           projectFixture.initCodeFile(externalCodeFile);
-        } catch( error ) {
+        } catch (error) {
           errorSeen = true;
           (error instanceof ProjectFixture.OutsideOfBaseError).should.be.true;
         }

@@ -1,4 +1,5 @@
 require('chai').should();
+
 const base = '../..';
 const index = require(base);
 
@@ -26,4 +27,3 @@ describe('lib/index', function () {
     });
   });
 });
-

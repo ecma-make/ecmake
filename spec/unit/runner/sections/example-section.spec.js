@@ -1,4 +1,5 @@
 require('chai').should();
+
 const lib = '../../../../lib';
 const exampleSection = require(`${lib}/runner/sections/example-section.js`);
 
@@ -14,7 +15,7 @@ describe('example-section', function () {
   });
   describe('header', function () {
     it('should contain "Examples"', function () {
-      exampleSection.header.should.include("Examples");
+      exampleSection.header.should.include('Examples');
     });
   });
   describe('content', function () {
@@ -25,7 +26,4 @@ describe('example-section', function () {
         });
       });
   });
-
 });
-
-

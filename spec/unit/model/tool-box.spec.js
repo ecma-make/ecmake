@@ -3,7 +3,8 @@ const { fake, createStubInstance } = require('sinon');
 const toolBox = require('../../../lib/model/tool-box');
 const modelIndex = require('../../../lib/model');
 const mainIndex = require('../../..');
-const Task = mainIndex.Task;
+
+const { Task } = mainIndex;
 
 describe('tool box', function () {
   it('should be exported by the main index', function () {
@@ -43,7 +44,7 @@ describe('tool box', function () {
   });
 
   describe('walkTree', function () {
-    describe('with callbacks', function() {
+    describe('with callbacks', function () {
       const orderBefore = [];
       const orderAfter = [];
       const logBefore = (name) => orderBefore.push(name);
@@ -70,7 +71,6 @@ describe('tool box', function () {
       tree.noTask.leaf.checkAfter = fake(logAfter);
       tree.last.checkBefore = fake(logBefore);
       tree.last.checkAfter = fake(logAfter);
-
 
       before(function () {
         toolBox.walkTree(
@@ -132,9 +132,9 @@ describe('tool box', function () {
     });
 
     describe('without callbaks', function () {
-      it('should not complain', function() {
+      it('should not complain', function () {
         const tree = createStubInstance(Task);
-        toolBox.walkTree( 'tree', tree);
+        toolBox.walkTree('tree', tree);
       });
     });
   });
@@ -204,8 +204,8 @@ describe('tool box', function () {
       });
     });
     describe('without callbaks', function () {
-      it('should not complain', function() {
-        toolBox.walkDependencies( { ___dependencies: [], });
+      it('should not complain', function () {
+        toolBox.walkDependencies({ ___dependencies: [] });
       });
     });
   });
