@@ -3,3 +3,4 @@ node_modules
 ecmake-code.js
 localTest
 .nyc_output/
+coverage
