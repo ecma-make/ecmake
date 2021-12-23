@@ -13,8 +13,8 @@
     "integrationTests": "mocha --recursive spec/integration"
   },
   "nyc": {
-      "include": "lib",
-      "exclude": ""
+    "include": "lib",
+    "exclude": ""
   },
   "keywords": [
     "node",
@@ -37,8 +37,9 @@
     "eslint-plugin-import": "^2.25.3",
     "mocha": "^9.1.3",
     "nyc": "^15.1.0",
-    "rewire": "^6.0.0",
-    "sinon": "^12.0.1"
+    "proxyquire": "^2.1.3",
+    "sinon": "^12.0.1",
+    "test-console": "^2.0.0"
   },
   "dependencies": {
     "command-line-args": "^5.2.0",
