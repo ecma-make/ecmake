@@ -1,5 +1,5 @@
 {
-    "timeout": 5000,
+    "timeout": 9000,
     "recursive": true,
     "extension": [".spec.js"],
     "require": ["spec/global-fixtures"]
