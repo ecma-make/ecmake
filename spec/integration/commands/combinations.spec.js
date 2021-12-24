@@ -237,7 +237,7 @@ function iterateBaseOptions(fixture) {
 //++++++++++++++++++++++++++++++++++++++++++++++++++
 
 describe('combinations of --base and --code with command options', function x() {
-  this.timeout(5000);
+  this.timeout(10000);
   const fixture = new ProjectFixture();
   iterateBaseOptions(fixture);
 });
