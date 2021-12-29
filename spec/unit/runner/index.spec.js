@@ -8,6 +8,4 @@ describe('lib/runner/index', function () {
   it('should be an alias of lib/runner/runner being Runner', function () {
     index.should.equal(Runner);
   });
-
 });
-

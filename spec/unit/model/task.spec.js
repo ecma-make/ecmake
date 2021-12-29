@@ -1,5 +1,4 @@
 require('chai').should();
-const { expect } = require('chai');
 
 const Task = require('../../../lib/model/task');
 const modelIndex = require('../../../lib/model');
@@ -9,15 +8,15 @@ describe('Task', () => {
   const description = 'some description of a task';
   const dependencies = ['a', 'b', 'c'];
 
-  it('should be exported by the main index', function () {
-    Task.should.equal(mainIndex.Task);
-  });
-
   it('should be exported by the model index', function () {
     Task.should.equal(modelIndex.Task);
   });
 
-  describe('constructor', () => {
+  it('should be exported by the main index', function () {
+    Task.should.equal(mainIndex.Task);
+  });
+
+  describe('.constructor()', () => {
     it('should create a Task', () => {
       const task = new Task();
       (task instanceof Task).should.be.true;
@@ -26,24 +25,103 @@ describe('Task', () => {
 
     it('should set some initial properties', () => {
       const task = new Task();
+      (task.___parent === null).should.be.true;
       task.___listed.should.be.false;
-      expect(task.___description).to.be.null;
+      (task.___description === null).should.be.true;
       task.___dependencies.should.be.deep.equal([]);
       task.___willDoCallback.should.exist;
     });
 
     it('should recursively autocreate new Tasks', () => {
-      const task = new Task();
-      task.parent.child = 3;
-      task.parent.child.should.equal(3);
+      const root = new Task();
+      (root.one.two instanceof Task).should.be.true;
     });
 
     it('should not autocreate props with three heading unserstores', () => {
       (() => new Task().___._).should.throw(TypeError);
     });
+
+    it('should set the parent when autocreated', () => {
+      const root = new Task();
+      root.one.___parent.should.equal(root);
+    });
   });
 
-  describe('listed', () => {
+  describe('.getParent()', () => {
+    it('should return the parent task', () => {
+      const task = new Task();
+      task.___parent = new Task();
+      task.getParent().should.equal(task.___parent);
+    });
+    describe('when root task', () => {
+      it('should return null', () => {
+        (new Task().getParent() === null).should.be.true;
+      });
+    });
+  });
+
+  describe('.getName()', () => {
+    it('should return the property name within parent', () => {
+      const root = new Task();
+      root.one.getName().should.equal('one');
+    });
+    describe('when root task', () => {
+      it('should return <root>', () => {
+        (new Task()).getName().should.equal('root');
+      });
+    });
+  });
+
+  describe('.getStack()', () => {
+    it('should return the stack of nodes from root to task', () => {
+      const root = new Task();
+      root.one.two.getStack().should.have.ordered.members(
+        [root, root.one, root.one.two],
+      );
+    });
+    describe('when root task', () => {
+      it('should contain the root task only', () => {
+        const root = new Task();
+        root.getStack().should.have.members([root]);
+      });
+    });
+  });
+
+  describe('.getPath()', () => {
+    const root = new Task();
+    describe('when <withRoot> is true', () => {
+      it('should return the path from root down to the task', () => {
+        root.one.two.getPath(true).should.equal('root.one.two');
+      });
+      describe('when at root', () => {
+        it('should return <root>', () => {
+          root.getPath(true).should.equal('root');
+        });
+      });
+    });
+    describe('when <withRoot> is false', () => {
+      it('should return the path without the trailing root', () => {
+        root.one.two.getPath(false).should.equal('one.two');
+      });
+      describe('when at root', () => {
+        it('should return the empty string', () => {
+          root.getPath(false).should.equal('');
+        });
+      });
+    });
+    describe('when <withRoot> is not given', () => {
+      it('should default to the behaviour of false', () => {
+        root.one.two.getPath(false).should.equal('one.two');
+      });
+      describe('when at root', () => {
+        it('should return the empty string', () => {
+          root.getPath(false).should.equal('');
+        });
+      });
+    });
+  });
+
+  describe('.listed()', () => {
     it('should return this', () => {
       const task = new Task();
       task.listed().should.equal(task);
@@ -56,20 +134,20 @@ describe('Task', () => {
     });
   });
 
-  describe('described', () => {
+  describe('.described()', () => {
     it('should return this', () => {
       const task = new Task();
       task.described().should.equal(task);
     });
     it('should store this.___description', () => {
       const task = new Task();
-      expect(task.___description).to.be.null;
+      (task.___description === null).should.be.true;
       task.described(description);
       task.___description.should.equal(description);
     });
   });
 
-  describe('awaits', () => {
+  describe('.awaits()', () => {
     it('should return this', () => {
       const task = new Task();
       task.awaits().should.equal(task);
@@ -81,7 +159,7 @@ describe('Task', () => {
     });
   });
 
-  describe('will', () => {
+  describe('.will()', () => {
     it('should return this', () => {
       const task = new Task();
       task.will().should.equal(task);
@@ -98,7 +176,7 @@ describe('Task', () => {
     });
   });
 
-  describe('listed, described, awaits, will', () => {
+  describe('.listed(), .described(), .awaits(), .will()', () => {
     it('should be able to chain them', () => {
       const callback = () => {};
       const task = new Task()
@@ -125,7 +203,7 @@ describe('Task', () => {
     });
   });
 
-  describe('go', () => {
+  describe('.go()', () => {
     it('should return this.___promise if promised before', () => {
       const promise = Promise.resolve();
       const task = new Task();
@@ -171,7 +249,7 @@ describe('Task', () => {
     });
   });
 
-  describe('result', () => {
+  describe('.result()', () => {
     it('is initially undefined', () => {
       const task = new Task();
       (typeof task.result).should.equal('undefined');

@@ -1,12 +1,14 @@
 require('chai').should();
 const { fake, createStubInstance } = require('sinon');
 const toolBox = require('../../../lib/model/tool-box');
+
+const { lastOf } = toolBox;
 const modelIndex = require('../../../lib/model');
 const mainIndex = require('../../..');
 
 const { Task } = mainIndex;
 
-describe('tool box', function () {
+describe('toolBox', function () {
   it('should be exported by the main index', function () {
     toolBox.should.equal(mainIndex.toolBox);
   });
@@ -15,8 +17,8 @@ describe('tool box', function () {
     toolBox.should.equal(modelIndex.toolBox);
   });
 
-  it('should export four keys', function () {
-    Object.keys(toolBox).length.should.equal(4);
+  it('should export five keys', function () {
+    Object.keys(toolBox).length.should.equal(5);
   });
 
   it('should export TargetNotFoundError', function () {
@@ -24,7 +26,13 @@ describe('tool box', function () {
       .should.be.true;
   });
 
-  describe('getTarget', function () {
+  describe('.lastOf()', function () {
+    it('should return the last element of an array', () => {
+      lastOf([1, 2]).should.equal(2);
+    });
+  });
+
+  describe('.getTarget()', function () {
     const tree = { A: { a: {} } };
     it('should get a valid child A', function () {
       toolBox.getTarget(tree, 'A').should.equal(tree.A);
@@ -43,12 +51,12 @@ describe('tool box', function () {
     });
   });
 
-  describe('walkTree', function () {
-    describe('with callbacks', function () {
+  describe('.walkTree()', function () {
+    describe('when callbacks are given', function () {
       const orderBefore = [];
       const orderAfter = [];
-      const logBefore = (name) => orderBefore.push(name);
-      const logAfter = (name) => orderAfter.push(name);
+      const logBefore = (stk) => orderBefore.push(lastOf(stk));
+      const logAfter = (stk) => orderAfter.push(lastOf(stk));
       const tree = createStubInstance(Task);
       tree.first = createStubInstance(Task);
       tree.inner = createStubInstance(Task);
@@ -57,10 +65,10 @@ describe('tool box', function () {
       tree.noTask.leaf = createStubInstance(Task);
       tree.last = createStubInstance(Task);
 
-      tree.first.checkBefore = fake(logBefore);
-      tree.first.checkAfter = fake(logAfter);
       tree.checkBefore = fake(logBefore);
       tree.checkAfter = fake(logAfter);
+      tree.first.checkBefore = fake(logBefore);
+      tree.first.checkAfter = fake(logAfter);
       tree.inner.checkBefore = fake(logBefore);
       tree.inner.checkAfter = fake(logAfter);
       tree.inner.leaf.checkBefore = fake(logBefore);
@@ -72,12 +80,12 @@ describe('tool box', function () {
       tree.last.checkBefore = fake(logBefore);
       tree.last.checkAfter = fake(logAfter);
 
+      const stack = [tree];
       before(function () {
         toolBox.walkTree(
-          'tree',
-          tree,
-          (name, node) => node.checkBefore(name, node),
-          (name, node) => node.checkAfter(name, node),
+          stack,
+          (stk) => lastOf(stk).checkBefore(stk),
+          (stk) => lastOf(stk).checkAfter(stk),
         );
       });
 
@@ -99,17 +107,13 @@ describe('tool box', function () {
       it('should call once when leaving a leaf node', function () {
         tree.inner.leaf.checkAfter.callCount.should.equal(1);
       });
-      it('should call doBefore with the outer name', function () {
-        tree.inner.checkBefore.lastCall.args[0].should.equal('inner');
+      it('should call doBefore with the stack', function () {
+        tree.inner.leaf.checkBefore.calledOnce.should.be.true;
+        tree.inner.leaf.checkBefore.calledWith(stack).should.be.true;
       });
-      it('should call doBefore with the node itself', function () {
-        tree.inner.checkBefore.lastCall.args[1].should.equal(tree.inner);
-      });
-      it('should call doAfter with the outer name', function () {
-        tree.inner.checkAfter.lastCall.args[0].should.equal('inner');
-      });
-      it('should call doAfter with the node itself', function () {
-        tree.inner.checkAfter.lastCall.args[1].should.equal(tree.inner);
+      it('should call doAfter with the stack', function () {
+        tree.inner.leaf.checkAfter.calledOnce.should.be.true;
+        tree.inner.leaf.checkAfter.calledWith(stack).should.be.true;
       });
       it('should not call doBefore if it is not a Task', function () {
         tree.noTask.checkBefore.callCount.should.equal(0);
@@ -121,44 +125,64 @@ describe('tool box', function () {
         tree.noTask.leaf.checkBefore.callCount.should.equal(0);
       });
       it('should enter the nodes in the expected order', function () {
-        const expected = ['tree', 'first', 'inner', 'leaf', 'last'];
-        orderBefore.should.deep.equal(expected);
+        orderBefore.should.have.ordered.members([
+          tree, tree.first, tree.inner, tree.inner.leaf, tree.last,
+        ]);
       });
 
       it('should leave the nodes in a different order', function () {
-        const expected = ['first', 'leaf', 'inner', 'last', 'tree'];
-        orderAfter.should.deep.equal(expected);
+        orderAfter.should.have.ordered.members([
+          tree.first, tree.inner.leaf, tree.inner, tree.last, tree,
+        ]);
       });
     });
 
-    describe('without callbaks', function () {
+    describe('when no callbacks are given', function () {
       it('should not complain', function () {
-        const tree = createStubInstance(Task);
-        toolBox.walkTree('tree', tree);
+        toolBox.walkTree([createStubInstance(Task)]);
+      });
+    });
+
+    describe('when ___parent is set to a Task', function () {
+      const root = createStubInstance(Task);
+      root.checkBefore = fake();
+      root.id = 'root';
+      root.child = createStubInstance(Task);
+      root.child.id = 'child';
+      root.child.checkBefore = fake();
+      root.child.___parent = root;
+      it('should not run an endless cycle', function () {
+        toolBox.walkTree([root], (stk) => lastOf(stk).checkBefore(stk));
+        root.checkBefore.calledOnce.should.be.true;
+        root.child.checkBefore.calledOnce.should.be.true;
       });
     });
   });
 
-  describe('walkDependencies', function () {
+  describe('.walkDependencies()', function () {
     describe('with callbaks', function () {
       const orderBefore = [];
       const orderAfter = [];
-      const logBefore = (node) => orderBefore.push(node);
-      const logAfter = (node) => orderAfter.push(node);
+      const logBefore = (stk) => orderBefore.push(lastOf(stk).id);
+      const logAfter = (stk) => orderAfter.push(lastOf(stk).id);
       const tree = {
+        id: 'root',
         checkBefore: fake(logBefore),
         checkAfter: fake(logAfter),
         ___dependencies: [
           {
+            id: 'first',
             checkBefore: fake(logBefore),
             checkAfter: fake(logAfter),
             ___dependencies: [],
           },
           {
+            id: 'inner',
             checkBefore: fake(logBefore),
             checkAfter: fake(logAfter),
             ___dependencies: [
               {
+                id: 'leaf',
                 checkBefore: fake(logBefore),
                 checkAfter: fake(logAfter),
                 ___dependencies: [],
@@ -166,6 +190,7 @@ describe('tool box', function () {
             ],
           },
           {
+            id: 'last',
             checkBefore: fake(logBefore),
             checkAfter: fake(logAfter),
             ___dependencies: [],
@@ -175,37 +200,28 @@ describe('tool box', function () {
 
       before(function () {
         toolBox.walkDependencies(
-          tree,
-          (node) => node.checkBefore(node),
-          (node) => node.checkAfter(node),
+          [tree],
+          (stk) => lastOf(stk).checkBefore(stk),
+          (stk) => lastOf(stk).checkAfter(stk),
         );
       });
 
       it('should enter the nodes in the expected order', function () {
-        const expected = [
-          tree,
-          tree.___dependencies[0],
-          tree.___dependencies[1],
-          tree.___dependencies[1].___dependencies[0],
-          tree.___dependencies[2],
-        ];
-        orderBefore.should.deep.equal(expected);
+        orderBefore.should.have.ordered.members(
+          ['root', 'first', 'inner', 'leaf', 'last'],
+        );
       });
 
       it('should leave the nodes in a different order', function () {
-        const expected = [
-          tree.___dependencies[0],
-          tree.___dependencies[1].___dependencies[0],
-          tree.___dependencies[1],
-          tree.___dependencies[2],
-          tree,
-        ];
-        orderAfter.should.deep.equal(expected);
+        orderAfter.should.have.ordered.members(
+          ['first', 'leaf', 'inner', 'last', 'root'],
+        );
       });
     });
+
     describe('without callbaks', function () {
       it('should not complain', function () {
-        toolBox.walkDependencies({ ___dependencies: [] });
+        toolBox.walkDependencies([{ ___dependencies: [] }]);
       });
     });
   });
