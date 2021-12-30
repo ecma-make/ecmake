@@ -1,5 +1,5 @@
 require('chai').should();
-const { fake, createStubInstance } = require('sinon');
+const { fake, stub } = require('sinon');
 const toolBox = require('../../../lib/model/tool-box');
 
 const { lastOf } = toolBox;
@@ -17,19 +17,13 @@ describe('toolBox', function () {
     toolBox.should.equal(modelIndex.toolBox);
   });
 
-  it('should export five keys', function () {
-    Object.keys(toolBox).length.should.equal(5);
+  it('should export six keys', function () {
+    Object.keys(toolBox).length.should.equal(6);
   });
 
   it('should export TargetNotFoundError', function () {
     (toolBox.TargetNotFoundError.prototype instanceof Error)
       .should.be.true;
-  });
-
-  describe('.lastOf()', function () {
-    it('should return the last element of an array', () => {
-      lastOf([1, 2]).should.equal(2);
-    });
   });
 
   describe('.getTarget()', function () {
@@ -51,178 +45,216 @@ describe('toolBox', function () {
     });
   });
 
-  describe('.walkTree()', function () {
-    describe('when callbacks are given', function () {
-      const orderBefore = [];
-      const orderAfter = [];
-      const logBefore = (stk) => orderBefore.push(lastOf(stk));
-      const logAfter = (stk) => orderAfter.push(lastOf(stk));
-      const tree = createStubInstance(Task);
-      tree.first = createStubInstance(Task);
-      tree.inner = createStubInstance(Task);
-      tree.inner.leaf = createStubInstance(Task);
-      tree.noTask = {};
-      tree.noTask.leaf = createStubInstance(Task);
-      tree.last = createStubInstance(Task);
+  describe('.lastOf()', function () {
+    it('should return the last element of an array', () => {
+      lastOf([1, 2]).should.equal(2);
+    });
+  });
 
-      tree.checkBefore = fake(logBefore);
-      tree.checkAfter = fake(logAfter);
-      tree.first.checkBefore = fake(logBefore);
-      tree.first.checkAfter = fake(logAfter);
-      tree.inner.checkBefore = fake(logBefore);
-      tree.inner.checkAfter = fake(logAfter);
-      tree.inner.leaf.checkBefore = fake(logBefore);
-      tree.inner.leaf.checkAfter = fake(logAfter);
-      tree.noTask.checkBefore = fake(logBefore);
-      tree.noTask.checkAfter = fake(logAfter);
-      tree.noTask.leaf.checkBefore = fake(logBefore);
-      tree.noTask.leaf.checkAfter = fake(logAfter);
-      tree.last.checkBefore = fake(logBefore);
-      tree.last.checkAfter = fake(logAfter);
-
-      const stack = [tree];
-      before(function () {
-        toolBox.walkTree(
-          stack,
-          (stk) => lastOf(stk).checkBefore(stk),
-          (stk) => lastOf(stk).checkAfter(stk),
+  describe('.walk()', function () {
+    const Fixture = function () {
+      this.nodeStack = [];
+      this.getSubNodes = fake.returns([]);
+      this.doBefore = fake();
+      this.doAfter = fake();
+      this.resultStack = [];
+      this.go = function () {
+        toolBox.walk(
+          this.getSubNodes,
+          this.nodeStack,
+          this.doBefore,
+          this.doAfter,
+          this.resultStack,
         );
-      });
+      };
+    };
 
-      it('should call once when entering the root node', function () {
-        tree.checkBefore.callCount.should.equal(1);
-      });
-      it('should call once when leaving the root node', function () {
-        tree.checkAfter.callCount.should.equal(1);
-      });
-      it('should call once when entering an inner node', function () {
-        tree.inner.checkBefore.callCount.should.equal(1);
-      });
-      it('should call once when leaving an inner node', function () {
-        tree.inner.checkAfter.callCount.should.equal(1);
-      });
-      it('should call once when entering a leaf node', function () {
-        tree.inner.leaf.checkBefore.callCount.should.equal(1);
-      });
-      it('should call once when leaving a leaf node', function () {
-        tree.inner.leaf.checkAfter.callCount.should.equal(1);
-      });
-      it('should call doBefore with the stack', function () {
-        tree.inner.leaf.checkBefore.calledOnce.should.be.true;
-        tree.inner.leaf.checkBefore.calledWith(stack).should.be.true;
-      });
-      it('should call doAfter with the stack', function () {
-        tree.inner.leaf.checkAfter.calledOnce.should.be.true;
-        tree.inner.leaf.checkAfter.calledWith(stack).should.be.true;
-      });
-      it('should not call doBefore if it is not a Task', function () {
-        tree.noTask.checkBefore.callCount.should.equal(0);
-      });
-      it('should not call doAfter if it is not a Task', function () {
-        tree.noTask.checkAfter.callCount.should.equal(0);
-      });
-      it('should not reach a child Task of a non-Task', function () {
-        tree.noTask.leaf.checkBefore.callCount.should.equal(0);
-      });
-      it('should enter the nodes in the expected order', function () {
-        orderBefore.should.have.ordered.members([
-          tree, tree.first, tree.inner, tree.inner.leaf, tree.last,
-        ]);
-      });
+    const fixAndGo = function () {
+      const fixture = new Fixture();
+      fixture.go();
+      return fixture;
+    };
 
-      it('should leave the nodes in a different order', function () {
-        orderAfter.should.have.ordered.members([
-          tree.first, tree.inner.leaf, tree.inner, tree.last, tree,
-        ]);
+    it('should default resultStack to []', () => {
+      const fixture = new Fixture();
+      fixture.resultStack = undefined;
+      fixture.doBefore = fake();
+      fixture.go();
+      fixture.doBefore.firstCall.args[1].should.deep.equal([]);
+    });
+    it('should call doBefore once', () => {
+      fixAndGo().doBefore.calledOnce.should.be.true;
+    });
+    it(' - with nodeStack as first argument', () => {
+      const fixture = fixAndGo();
+      fixture.doBefore.getCall(0).args[0].should.equal(fixture.nodeStack);
+    });
+    it(' - with resultStack as second argument', () => {
+      const fixture = fixAndGo();
+      fixture.doBefore.getCall(0).args[1].should.equal(fixture.resultStack);
+    });
+    describe('when doBefore is undefined', () => {
+      it('should not complain', () => {
+        const fixture = new Fixture();
+        fixture.doBefore = undefined;
+        fixture.go();
       });
     });
-
-    describe('when no callbacks are given', function () {
-      it('should not complain', function () {
-        toolBox.walkTree([createStubInstance(Task)]);
+    it('should call doAfter once', () => {
+      fixAndGo().doAfter.calledOnce.should.be.true;
+    });
+    it(' - with nodeStack as first argument', () => {
+      const fixture = fixAndGo();
+      fixture.doAfter.getCall(0).args[0].should.equal(fixture.nodeStack);
+    });
+    it(' - with resultStack as second argument', () => {
+      const fixture = fixAndGo();
+      fixture.doAfter.getCall(0).args[1].should.equal(fixture.resultStack);
+    });
+    describe('when doAfter is undefined', function () {
+      it('should not complain ', () => {
+        const fixture = new Fixture();
+        fixture.doAfter = undefined;
+        fixture.go();
       });
     });
+    it('should call getSubNodes once', () => {
+      fixAndGo().getSubNodes.calledOnce.should.be.true;
+    });
+    it(' - with nodeStack as first argument', () => {
+      const fixture = fixAndGo();
+      fixture.getSubNodes.getCall(0).args[0].should.equal(fixture.nodeStack);
+    });
+    it(' - with resultStack as second argument', () => {
+      const fixture = fixAndGo();
+      fixture.getSubNodes.getCall(0).args[1].should.equal(fixture.resultStack);
+    });
+    describe('when iterating children of getSubNodes', function () {
+      const RecursiveFixture = function () {
+        // defaults to root and one child, so the initial stack is [root]
+        this.root = 'root';
+        this.child = 'child';
+        this.nodeStack = [this.root];
+        this.getSubNodes = (stk) => (stk.length === 1 ? [this.child] : []);
+        this.doBefore = fake();
+        this.doAfter = fake();
+        this.resultStack = [];
+        this.go = function () {
+          toolBox.walk(
+            this.getSubNodes,
+            this.nodeStack,
+            this.doBefore,
+            this.doAfter,
+            this.resultStack,
+          );
+        };
+      };
+      RecursiveFixture.setUp = function () {
+        if (this.walkStub) this.walkStub.restore();
+        this.recursivenessProven = false;
+        this.stackHead = undefined;
+        this.walkStub = stub(toolBox, 'walk')
+          .onCall(1).callsFake((_, nodeStack) => {
+            this.recursivenessProven = true;
+            this.stackHead = lastOf(nodeStack);
+          });
+        this.walkStub.callThrough();
+        return new RecursiveFixture();
+      };
+      RecursiveFixture.tearDown = function () {
+        this.walkStub.restore();
+      };
 
-    describe('when ___parent is set to a Task', function () {
-      const root = createStubInstance(Task);
-      root.checkBefore = fake();
-      root.id = 'root';
-      root.child = createStubInstance(Task);
-      root.child.id = 'child';
-      root.child.checkBefore = fake();
-      root.child.___parent = root;
-      it('should not run an endless cycle', function () {
-        toolBox.walkTree([root], (stk) => lastOf(stk).checkBefore(stk));
-        root.checkBefore.calledOnce.should.be.true;
-        root.child.checkBefore.calledOnce.should.be.true;
+      let fixture;
+      beforeEach(() => {
+        fixture = RecursiveFixture.setUp();
+      });
+
+      afterEach(() => {
+        RecursiveFixture.tearDown();
+      });
+
+      it('should push the child to nodeStack before call to walk', () => {
+        fixture.go();
+        RecursiveFixture.stackHead.should.equal(fixture.child);
+      });
+      it('should pop the child from nodeStack after call to walk', () => {
+        fixture.go();
+        fixture.nodeStack.should.have.members([fixture.root]);
+      });
+      it('should call walk recursively', () => {
+        fixture.go();
+        RecursiveFixture.recursivenessProven.should.be.true;
+      });
+      it(' - once for each child', () => {
+        for (let i = 0; i < 3; i += 1) {
+          const expectation = 1 + i;
+          const children = Array.from(Array(i).keys());
+          const myFixture = RecursiveFixture.setUp();
+          myFixture.getSubNodes = (stk) => (stk.length === 1 ? children : []);
+          myFixture.go();
+          RecursiveFixture.walkStub.callCount.should.equal(expectation);
+          RecursiveFixture.tearDown();
+        }
+      });
+      it(' - with getSubNodes as first argument', () => {
+        fixture.go();
+        RecursiveFixture.walkStub.secondCall.args[0]
+          .should.equal(fixture.getSubNodes);
+      });
+      it(' - with nodeStack as second argument', () => {
+        fixture.go();
+        RecursiveFixture.walkStub.secondCall.args[1]
+          .should.equal(fixture.nodeStack);
+      });
+      it(' - with doBefore as third argument', () => {
+        fixture.go();
+        RecursiveFixture.walkStub.secondCall.args[2]
+          .should.equal(fixture.doBefore);
+      });
+      it(' - with doAfter as fourth argument', () => {
+        fixture.go();
+        RecursiveFixture.walkStub.secondCall.args[3]
+          .should.equal(fixture.doAfter);
+      });
+      it(' - with resultStack as fifth argument', () => {
+        fixture.go();
+        RecursiveFixture.walkStub.secondCall.args[4]
+          .should.equal(fixture.resultStack);
       });
     });
   });
 
-  describe('.walkDependencies()', function () {
-    describe('with callbaks', function () {
-      const orderBefore = [];
-      const orderAfter = [];
-      const logBefore = (stk) => orderBefore.push(lastOf(stk).id);
-      const logAfter = (stk) => orderAfter.push(lastOf(stk).id);
-      const tree = {
-        id: 'root',
-        checkBefore: fake(logBefore),
-        checkAfter: fake(logAfter),
-        ___dependencies: [
-          {
-            id: 'first',
-            checkBefore: fake(logBefore),
-            checkAfter: fake(logAfter),
-            ___dependencies: [],
-          },
-          {
-            id: 'inner',
-            checkBefore: fake(logBefore),
-            checkAfter: fake(logAfter),
-            ___dependencies: [
-              {
-                id: 'leaf',
-                checkBefore: fake(logBefore),
-                checkAfter: fake(logAfter),
-                ___dependencies: [],
-              },
-            ],
-          },
-          {
-            id: 'last',
-            checkBefore: fake(logBefore),
-            checkAfter: fake(logAfter),
-            ___dependencies: [],
-          },
-        ],
-      };
+  describe('.getSubNodesInAwaitsWalk()', function () {
+    it(
+      'should return the elements of ___dependencies of the head node of stack',
+      () => {
+        const ___dependencies = [];
+        toolBox.getSubNodesInAwaitsWalk([1, 2, 3, { ___dependencies }])
+          .should.equal(___dependencies);
+      },
+    );
+  });
 
-      before(function () {
-        toolBox.walkDependencies(
-          [tree],
-          (stk) => lastOf(stk).checkBefore(stk),
-          (stk) => lastOf(stk).checkAfter(stk),
-        );
-      });
-
-      it('should enter the nodes in the expected order', function () {
-        orderBefore.should.have.ordered.members(
-          ['root', 'first', 'inner', 'leaf', 'last'],
-        );
-      });
-
-      it('should leave the nodes in a different order', function () {
-        orderAfter.should.have.ordered.members(
-          ['first', 'leaf', 'inner', 'last', 'root'],
-        );
-      });
+  describe('.getSubNodesInTreeWalk()', function () {
+    it('should return poperties of head node of stack', () => {
+      const task = new Task();
+      task.one = new Task();
+      task.two = new Task();
+      toolBox.getSubNodesInTreeWalk([1, 2, 3, task])
+        .should.have.members([task.one, task.two]);
     });
-
-    describe('without callbaks', function () {
-      it('should not complain', function () {
-        toolBox.walkDependencies([{ ___dependencies: [] }]);
-      });
+    it(' - filtering Tasks', () => {
+      const task = new Task();
+      task.task = new Task();
+      task.noTask = 'no task';
+      toolBox.getSubNodesInTreeWalk([task]).should.include(task.task);
+      toolBox.getSubNodesInTreeWalk([task]).should.not.include(task.noTask);
+    });
+    it(' - but excluding the ___parent Task', () => {
+      const task = new Task();
+      task.___parent = new Task();
+      toolBox.getSubNodesInTreeWalk([task]).should.not.include(task.___parent);
     });
   });
 });
