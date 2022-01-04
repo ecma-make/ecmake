@@ -3,8 +3,7 @@ const cp = require('child_process');
 const fsp = require('fs').promises;
 const path = require('path');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 describe('--init', function x() {
   this.timeout(5000);

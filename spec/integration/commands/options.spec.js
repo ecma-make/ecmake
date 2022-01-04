@@ -1,8 +1,7 @@
 require('chai').should();
 const cp = require('child_process');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 function isOptionsOnly(text) {
   const options = text.includes('Options');

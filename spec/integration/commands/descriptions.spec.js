@@ -1,8 +1,7 @@
 require('chai').should();
 const cp = require('child_process');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 describe('--descriptions', function x() {
   this.timeout(5000);
@@ -38,23 +37,20 @@ describe('--descriptions', function x() {
       it('should contain the expected nodes in sorted order', () => {
         const sorted = Object.keys(descriptions).sort();
         let i = 0;
-        text.match(/[^\n]+/g).forEach((line) => {
+        text.match(/[^\n\r]+/g).forEach((line) => {
           i += line.includes(sorted[i]) ? 1 : 0;
         });
         i.should.equal(sorted.length);
       });
 
       it('should contain the matching descriptions', () => {
-        const matches = [];
-        text.match(/[^\n]+/g).forEach((line) => {
-          const match = line.match(/\* ([^ ]+)/);
-          if (match) {
-            matches.push(match[1]);
-            const description = descriptions[match[1]];
-            line.should.include(description);
-          }
+        let counter = 0;
+        text.match(/[-][^-]+/gm).forEach((entry) => {
+          counter += 1;
+          const key = entry.match(/-\s+(\S+)/)[1];
+          entry.should.have.string(descriptions[key]);
         });
-        Object.keys(descriptions).sort().should.deep.equal(matches.sort());
+        counter.should.equal(Object.keys(descriptions).length);
       });
     });
   });

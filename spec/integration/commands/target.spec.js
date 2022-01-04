@@ -1,8 +1,7 @@
 require('chai').should();
 const cp = require('child_process');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 describe('--target', function x() {
   this.timeout(5000);

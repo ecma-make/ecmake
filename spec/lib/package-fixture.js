@@ -1,6 +1,6 @@
 const cpr = require('child_process');
 
-const ErrorClassFactory = require('../error-class-factory');
+const ErrorClassFactory = require('../../lib/error-class-factory');
 
 module.exports = class PackageFixture {
   constructor() {

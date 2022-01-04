@@ -1,10 +1,11 @@
 require('chai').should();
-const {EOL} = require('os');
+const { EOL } = require('os');
 
 const proxyQuireStrict = require('proxyquire').noCallThru();
-const { fake, createStubInstance, replace, replaceGetter, restore } = require('sinon');
+const {
+  fake, createStubInstance, replace, replaceGetter, restore,
+} = require('sinon');
 const path = require('path');
-const sandbox = require("sinon").createSandbox();
 
 const lib = '../../../lib';
 const Runner = require(`${lib}/runner/index`);
@@ -13,10 +14,10 @@ describe('Runner', function () {
   describe('.constructor()', function () {
     const makeOptions = fake.returns({});
     const templatePath = 'templatePath';
-    const path = { resolve: fake.returns(templatePath), };
+    const myPath = { resolve: fake.returns(templatePath) };
     const commandLine = { makeOptions };
     const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-      'path': path,
+      path: myPath,
       './command-line': commandLine,
     });
     const runner = new RunnerProxy();
@@ -25,15 +26,15 @@ describe('Runner', function () {
       RunnerProxy.name.should.equal('Runner');
     });
     it('should call path.resolve() once', function () {
-      path.resolve.calledOnce.should.be.true;
+      myPath.resolve.calledOnce.should.be.true;
     });
     it(' - for "../../templates/ecmake-code.init.js"', function () {
-      path.resolve.calledWith('..', '..', 'templates', 'ecmake-code.init.js');
+      myPath.resolve.calledWith('..', '..', 'templates', 'ecmake-code.init.js');
     });
     it(' - and set the result to this.templatePath"', function () {
       runner.templatePath.should.equal(templatePath);
     });
-    describe(`when option code is not given`, function () {
+    describe('when option code is not given', function () {
       it('should set this.code to <ecmake-code.js>', function () {
         runner.code.should.equal('ecmake-code.js');
       });
@@ -41,12 +42,12 @@ describe('Runner', function () {
     {
       const code = 'my-ecmake-code.js';
       describe(`when option code is <${code}>`, function () {
-        const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-          './command-line': { makeOptions: fake.returns({ code })  },
+        const MyRunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
+          './command-line': { makeOptions: fake.returns({ code }) },
         });
-        const runner = new RunnerProxy();
+        const myRunner = new MyRunnerProxy();
         it(`should set this.code to <${code}>`, function () {
-          runner.code.should.equal(code);
+          myRunner.code.should.equal(code);
         });
       });
     }
@@ -56,7 +57,7 @@ describe('Runner', function () {
       describe('when called with --base base', function () {
         const base = 'the base';
         let runner;
-        before(function() {
+        before(function () {
           replace(process, 'chdir', fake());
           replace(process, 'argv', ['before', '--base', base, 'after']);
           runner = createStubInstance(Runner);
@@ -65,18 +66,18 @@ describe('Runner', function () {
           runner.delegateToFinalEnvironment = fake();
           runner.go();
         });
-        after(function() {
+        after(function () {
           restore();
         });
-        it('should call process.chdir() once', function() {
+        it('should call process.chdir() once', function () {
           process.chdir.calledOnce.should.be.true;
         });
-        it(' - with the resolved base path', function() {
+        it(' - with the resolved base path', function () {
           const resolvedBase = path.resolve(base);
           resolvedBase.should.not.equal(base);
           process.chdir.calledWith(resolvedBase).should.be.true;
         });
-        it(`should remove <--base base> from process.argv`, function() {
+        it('should remove <--base base> from process.argv', function () {
           process.argv.should.have.lengthOf(2);
           process.argv.should.deep.equal(['before', 'after']);
         });
@@ -84,7 +85,7 @@ describe('Runner', function () {
       describe('when called wiht -b base', function () {
         const base = 'the base';
         let runner;
-        before(function() {
+        before(function () {
           replace(process, 'chdir', fake());
           replace(process, 'argv', ['before', '-b', base, 'after']);
           runner = createStubInstance(Runner);
@@ -93,18 +94,18 @@ describe('Runner', function () {
           runner.delegateToFinalEnvironment = fake();
           runner.go();
         });
-        after(function() {
+        after(function () {
           restore();
         });
-        it('should call process.chdir() once', function() {
+        it('should call process.chdir() once', function () {
           process.chdir.calledOnce.should.be.true;
         });
-        it(' - with the resolved base path', function() {
+        it(' - with the resolved base path', function () {
           const resolvedBase = path.resolve(base);
           resolvedBase.should.not.equal(base);
           process.chdir.calledWith(resolvedBase).should.be.true;
         });
-        it(`should remove <-b base> from process.argv`, function() {
+        it('should remove <-b base> from process.argv', function () {
           process.argv.should.have.lengthOf(2);
           process.argv.should.deep.equal(['before', 'after']);
         });
@@ -112,33 +113,33 @@ describe('Runner', function () {
     });
     describe('when ECMAKE_DOIT is falsy', function () {
       let runner;
-      before(function() {
-        replace(process, 'env', { ECMAKE_DOIT: 0});
+      before(function () {
+        replace(process, 'env', { ECMAKE_DOIT: 0 });
         runner = createStubInstance(Runner);
         runner.go = Runner.prototype.go;
         runner.options = {};
         runner.go();
       });
-      after(function() {
+      after(function () {
         restore();
       });
-      it('should call delegateToFinalEnvironment() once', function() {
+      it('should call delegateToFinalEnvironment() once', function () {
         runner.delegateToFinalEnvironment.calledOnce.should.be.true;
       });
     });
     describe('when ECMAKE_DOIT is truthy', function () {
       let runner;
-      before(function() {
-        replace(process, 'env', { ECMAKE_DOIT: 1});
+      before(function () {
+        replace(process, 'env', { ECMAKE_DOIT: 1 });
         runner = createStubInstance(Runner);
         runner.go = Runner.prototype.go;
         runner.options = {};
         runner.go();
       });
-      after(function() {
+      after(function () {
         restore();
       });
-      it('should call doIt() once', function() {
+      it('should call doIt() once', function () {
         runner.doIt.calledOnce.should.be.true;
       });
     });
@@ -146,14 +147,14 @@ describe('Runner', function () {
   describe('.delegateToFinalEnvironment()', () => {
     let RunnerProxy;
     let runner;
-    const spawnResult = {stdout: 'from stdout', stderr: 'from stderr'};
+    const spawnResult = { stdout: 'from stdout', stderr: 'from stderr' };
     const cpr = { spawnSync: fake.returns(spawnResult) };
-    const supportsColor = { stdout: undefined, };
+    const supportsColor = { stdout: undefined };
     const stdoutWrite = fake();
-    const stdout = function() { return { write: stdoutWrite } };
+    const stdout = function () { return { write: stdoutWrite }; };
     const stderrWrite = fake();
-    const stderr = function() { return { write: stderrWrite } };
-    const env = { FROM_OUTSIDE: 1};
+    const stderr = function () { return { write: stderrWrite }; };
+    const env = { FROM_OUTSIDE: 1 };
     const argv = ['arg1', 'arg2', 'arg3'];
     before(() => {
       replace(process, 'env', env);
@@ -161,7 +162,7 @@ describe('Runner', function () {
       replaceGetter(process, 'stdout', stdout);
       replaceGetter(process, 'stderr', stderr);
       RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-        'child_process': cpr,
+        child_process: cpr,
         'supports-color': supportsColor,
       });
       runner = new RunnerProxy();
@@ -183,14 +184,13 @@ describe('Runner', function () {
       cpr.spawnSync.args[0][0].should.equal('npm');
     });
     it(' - with exec -- ecmake', () => {
-      const arguments = cpr.spawnSync.args[0][1];
-      arguments.slice(0, 3).should.deep.equal(['exec', '--', 'ecmake']);
+      cpr.spawnSync.args[0][1].slice(0, 3)
+        .should.deep.equal(['exec', '--', 'ecmake']);
     });
     it(' - and arguments without the leading two', () => {
-      const arguments = cpr.spawnSync.args[0][1];
-      arguments.should.not.include('arg1');
-      arguments.should.not.include('arg2');
-      arguments.should.include('arg3');
+      cpr.spawnSync.args[0][1].should.not.include('arg1');
+      cpr.spawnSync.args[0][1].should.not.include('arg2');
+      cpr.spawnSync.args[0][1].should.include('arg3');
     });
     it(' - with options containing env', () => {
       cpr.spawnSync.args[0][2].env.should.be.ok;
@@ -219,35 +219,35 @@ describe('Runner', function () {
     });
   });
   describe('.getRoot()', function () {
-      const root = 'the root task';
-      const getRoot = fake.returns(root);
-      const Reader = fake(function () { return { getRoot }; });
-      const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-        './reader': Reader,
-      });
-      let runner;
-      let result;
-      before(() => {
-        runner = new RunnerProxy();
-        runner.code = 'codePath';
-        result = runner.getRoot();
-      });
-      it('should call new Reader() once', () => {
-        Reader.calledOnce.should.be.true;
-        Reader.calledWithNew().should.be.true;
-      });
-      it(' - with this.code', () => {
-        Reader.calledWith(runner.code).should.be.true;
-      });
-      it(' - chaining .getRoot() once', () => {
-        getRoot.calledOnce.should.be.true;
-      });
-      it(' - which should return root', () => {
-        getRoot.returned(root).should.be.true;
-      });
-      it('should return root', () => {
-        result.should.equal(root);
-      });
+    const root = 'the root task';
+    const getRoot = fake.returns(root);
+    const Reader = fake(function () { return { getRoot }; });
+    const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
+      './reader': Reader,
+    });
+    let runner;
+    let result;
+    before(() => {
+      runner = new RunnerProxy();
+      runner.code = 'codePath';
+      result = runner.getRoot();
+    });
+    it('should call new Reader() once', () => {
+      Reader.calledOnce.should.be.true;
+      Reader.calledWithNew().should.be.true;
+    });
+    it(' - with this.code', () => {
+      Reader.calledWith(runner.code).should.be.true;
+    });
+    it(' - chaining .getRoot() once', () => {
+      getRoot.calledOnce.should.be.true;
+    });
+    it(' - which should return root', () => {
+      getRoot.returned(root).should.be.true;
+    });
+    it('should return root', () => {
+      result.should.equal(root);
+    });
   });
 
   describe('.doIt()', function () {
@@ -337,9 +337,9 @@ describe('Runner', function () {
         showDependencies.calledWith(runner.options.awaits).should.be.true;
       });
       describe('when called with empty target', function () {
-        const runner = new Mock();
-        runner.options = { awaits: null };
-        before(() => { runner.doIt(); });
+        const myRunner = new Mock();
+        myRunner.options = { awaits: null };
+        before(() => { myRunner.doIt(); });
         it(' - with <default>', () => {
           showDependencies.lastCall.calledWith('default').should.be.true;
         });
@@ -429,7 +429,7 @@ describe('Runner', function () {
     describe('when --help', function () {
       const makeHelp = fake();
       const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-        './command-line': {makeHelp},
+        './command-line': { makeHelp },
       });
       const Mock = fake();
       Mock.prototype.doIt = RunnerProxy.prototype.doIt;
@@ -443,14 +443,14 @@ describe('Runner', function () {
     describe('when --version', function () {
       const version = 'x.x.x';
       const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-        '../../package.json': {version},
+        '../../package.json': { version },
       });
       const Mock = fake();
       Mock.prototype.doIt = RunnerProxy.prototype.doIt;
       const runner = new Mock();
       runner.options = { version: true };
       const stdoutWrite = fake();
-      const stdout = function() { return { write: stdoutWrite } };
+      const stdout = function () { return { write: stdoutWrite }; };
       before(() => {
         replaceGetter(process, 'stdout', stdout);
         runner.doIt();
@@ -469,7 +469,7 @@ describe('Runner', function () {
     describe('when --options', function () {
       const makeOptionsHelp = fake();
       const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-        './command-line': {makeOptionsHelp},
+        './command-line': { makeOptionsHelp },
       });
       const Mock = fake();
       Mock.prototype.doIt = RunnerProxy.prototype.doIt;
@@ -515,7 +515,7 @@ describe('Runner', function () {
       describe('when no root task can be found', function () {
         const makeHelp = fake();
         const RunnerProxy = proxyQuireStrict(`${lib}/runner/runner`, {
-          './command-line': {makeHelp},
+          './command-line': { makeHelp },
         });
         const Mock = fake();
         Mock.prototype.doIt = RunnerProxy.prototype.doIt;

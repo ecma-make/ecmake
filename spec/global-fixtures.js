@@ -1,4 +1,4 @@
-const PackageFixture = require('../lib/testing/package-fixture');
+const PackageFixture = require('./lib/package-fixture');
 
 const packageFixture = new PackageFixture();
 

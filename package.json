@@ -13,7 +13,7 @@
     "integrationTests": "mocha --recursive spec/integration"
   },
   "nyc": {
-    "include": "lib",
+    "include": ["lib", "spec/lib"],
     "exclude": ""
   },
   "keywords": [

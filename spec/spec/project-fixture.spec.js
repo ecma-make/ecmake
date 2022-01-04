@@ -2,10 +2,9 @@ require('chai').should();
 const path = require('path');
 const fs = require('fs');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../lib/project-fixture');
 
-describe('ProjectFixture #slow', function x() {
+describe('ProjectFixture', function x() {
   describe('assertError', () => {
     const error = new Error();
     it('should pass if the the code does fit', function () {

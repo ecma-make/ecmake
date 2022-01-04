@@ -1,8 +1,7 @@
 require('chai').should();
 const cp = require('child_process');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 class TreeParser {
   constructor(text) {
@@ -35,7 +34,7 @@ class TreeParser {
   static levelOf(line) {
     const match = line.match(/^([ ]+)-/);
     if (match) {
-      return (match[1].length + 1) / 2;
+      return (match[1].length + 0) / 2;
     }
     return null;
   }

@@ -3,8 +3,7 @@ const path = require('path');
 const cp = require('child_process');
 require('chai').should();
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++
 // expectations
@@ -50,7 +49,7 @@ function getListingExpectations() {
   const treeWhite = (listWhite.concat(listBlack)).map((t) => `root.${t}`);
   treeWhite.unshift('root');
   const regexPair = (task) => [task,
-    new RegExp(`^\\s(\\*\\s)?${task}(\\s.*)?$`, 'm')];
+    new RegExp(`^\\s+(\\-\\s)?${task}(\\s.*)?$`, 'm')];
   return {
     list: {
       white: listWhite.map(regexPair),
@@ -93,12 +92,12 @@ function blackAndWhite(command, black, white) {
     result = cp.execSync(command).toString();
   });
   white.forEach(([name, pattern]) => {
-    it(`should match <${name}>`, () => {
+    it(`should match "${name}"`, () => {
       result.should.match(pattern);
     });
   });
   black.forEach(([name, pattern]) => {
-    it(`should NOT match <${name}>`, () => {
+    it(`should NOT match "${name}"`, () => {
       result.should.not.match(pattern);
     });
   });

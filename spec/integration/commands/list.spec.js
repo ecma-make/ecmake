@@ -1,8 +1,7 @@
 require('chai').should();
 const cp = require('child_process');
 
-const lib = '../../../lib';
-const ProjectFixture = require(`${lib}/testing/project-fixture`);
+const ProjectFixture = require('../../lib/project-fixture');
 
 describe('--list', function x() {
   this.timeout(5000);
@@ -40,14 +39,18 @@ describe('--list', function x() {
         i.should.equal(sorted.length);
       });
 
-      it('should contain a description for hello.planet', (done) => {
-        text.match(/[^\n]+/g).forEach((line) => {
-          if (line.includes('hello.planet')) {
-            line.should.include(planetDescription);
-            done();
+      it(
+        'should contain a description for hello.planet in the next line',
+        (done) => {
+          const lines = text.match(/[^\n]+/g);
+          for (let i = 0; i < lines.length; i += 1) {
+            if (lines[i].includes('hello.planet')) {
+              lines[i + 1].should.include(planetDescription);
+              done();
+            }
           }
-        });
-      });
+        },
+      );
     });
   });
 });

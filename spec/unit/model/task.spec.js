@@ -111,11 +111,11 @@ describe('Task', () => {
     });
     describe('when <withRoot> is not given', () => {
       it('should default to the behaviour of false', () => {
-        root.one.two.getPath(false).should.equal('one.two');
+        root.one.two.getPath().should.equal('one.two');
       });
       describe('when at root', () => {
         it('should return the empty string', () => {
-          root.getPath(false).should.equal('');
+          root.getPath().should.equal('');
         });
       });
     });
