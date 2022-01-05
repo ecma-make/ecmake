@@ -2,9 +2,9 @@ name: IntegrationTests
 
 on:
   push:
-    branches: [ dev0 ]
+    branches: [ dev0, latest ]
   pull_request:
-    branches: [ dev0 ]
+    branches: [ dev0, latest ]
 
 jobs:
   build:
