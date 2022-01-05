@@ -9,8 +9,8 @@
   },
   "main": "./lib/index.js",
   "scripts": {
-    "unitTests": "mocha spec/unit",
-    "integrationTests": "mocha spec/integration",
+    "unitTests": "mocha \"spec/unit/{**/,}*\"",
+    "integrationTests": "mocha \"spec/integration/{**/,}*\"",
     "codeCoverage": "npx nyc mocha \"spec/{unit,spec}/{**/,}*\" "
   },
   "nyc": {
