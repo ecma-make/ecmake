@@ -1,6 +1,6 @@
 {
   "name": "@ecmake/ecmake",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "ecmake is ecma make – the next generation of task running",
   "homepage": "https://github.com/ecma-make/ecmake#readme",
   "url": "https://github.com/ecma-make/ecmake/issues",
