@@ -11,7 +11,8 @@
   "scripts": {
     "unitTests": "mocha \"spec/unit/{**/,}*\"",
     "integrationTests": "mocha \"spec/integration/{**/,}*\"",
-    "codeCoverage": "npx nyc mocha \"spec/{unit,spec}/{**/,}*\" "
+    "codeCoverage": "npx nyc mocha \"spec/{unit,spec}/{**/,}*\" ",
+    "lint": "npx eslint spec/ lib/"
   },
   "nyc": {
     "include": ["lib", "spec/lib"],
