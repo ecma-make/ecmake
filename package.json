@@ -10,11 +10,17 @@
   "main": "./lib/index.js",
   "scripts": {
     "unitTests": "mocha spec/unit",
-    "integrationTests": "mocha spec/integration"
+    "integrationTests": "mocha spec/integration",
+    "codeCoverage": "npx nyc mocha \"spec/{unit,spec}/{**/,}*\" "
   },
   "nyc": {
     "include": ["lib", "spec/lib"],
-    "exclude": ""
+    "exclude": "",
+    "check-coverage": "true",
+    "branches": "100",
+    "functions": "100",
+    "lines": "100",
+    "statements": "100"
   },
   "keywords": [
     "node",
