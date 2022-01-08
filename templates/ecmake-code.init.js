@@ -24,10 +24,8 @@ root.hello.planet
 
 root.countdown
   .awaits(root.setup)
-  .will(() => new Promise(
-    (resolve) => {
-      setTimeout(() => {
-        resolve(`Hello ${root.setup.result.planet}, here we go!`);
-      }, root.setup.result.countdown);
-    },
-  ));
+  .will((resolve) => {
+    setTimeout(() => {
+      resolve(`Hello ${root.setup.result.planet}, here we go!`);
+    }, root.setup.result.countdown);
+  });

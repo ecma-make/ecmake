@@ -171,7 +171,8 @@ root.hello.mars
     .will(() => console.log('Hello mars!'));
 ```
 
-For asynchronous code a promise is to be returned by the callback.
+For asynchronous code a promise is to be returned by the callback. 
+There are shortcuts. See next paragraph.
 
 ```js
 root.countdown
@@ -183,6 +184,48 @@ root.countdown
         }, 1000);
       },
     ));
+```
+
+### Flexibility of the callback argument to `.will()`
+
+#### Synchronous code
+
+A callback function without arguments. The return
+value becomes the result of the task.
+
+```js
+  .will(() => { 
+    [...]
+    return result; 
+  });
+```
+#### Asynchronous code
+
+A callback function without arguments returning a promise. 
+The promise resolves to the result of the task.
+
+```js
+  .will(() => { 
+    [...]
+    return new Promise((resolve, reject) => { ... });
+  });
+```
+
+As a shortcut the callback of a promise can be given, which will 
+automatically be wrapped by a new promise and a callback function.
+
+It is equivalent with the form above, with the execption, that 
+there is no wrapping context before the creation of the callback.
+
+```js
+  .will((resolve, reject) => { ... });
+```
+
+The argument may be a promise, which will automatically be wrapped 
+by a callback function. 
+
+```js
+  .will( new Promise((resolve, reject) => { ... }));
 ```
 
 ### Full example of the template file
@@ -219,13 +262,11 @@ root.hello.planet
 
 root.countdown
   .awaits(root.setup)
-  .will(() => new Promise(
-    (resolve) => {
-      setTimeout(() => {
-        resolve(`Hello ${root.setup.result.planet}, here we go!`);
-      }, root.setup.result.countdown);
-    },
-  ));
+  .will((resolve) => {
+    setTimeout(() => {
+      resolve(`Hello ${root.setup.result.planet}, here we go!`);
+    }, root.setup.result.countdown);
+  });
 ```
 
 ## Namig conventions for the task tree

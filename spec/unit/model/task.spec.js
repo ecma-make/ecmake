@@ -80,7 +80,7 @@ describe('Task', () => {
       );
     });
     describe('when root task', () => {
-      it('should contain the root task only', () => {
+      it('should contain the root task alone', () => {
         const root = new Task();
         root.getStack().should.have.members([root]);
       });
@@ -159,10 +159,61 @@ describe('Task', () => {
     });
   });
 
+  describe('.handleWillDoArgument()', () => {
+    describe('when the argument is a promise', () => {
+      const promise = new Promise((resolve) => {}); // eslint-disable-line no-unused-vars
+      it('should return a function', () => {
+        const task = new Task();
+        const result = task.handleWillDoArgument(promise);
+        (typeof result).should.equal('function');
+      });
+      it(' - which should return the original promise', () => {
+        const task = new Task();
+        const result = task.handleWillDoArgument(promise);
+        result.call().should.equal(promise);
+      });
+    });
+    describe('when the argument is a function', () => {
+      describe('when the function has no parameters', () => {
+        const func = () => {};
+        it('should return the func', () => {
+          const task = new Task();
+          task.handleWillDoArgument(func).should.equal(func);
+        });
+      });
+      describe('when the function has one parameter', () => {
+        const func = (resolve) => {}; // eslint-disable-line no-unused-vars
+        it('should return a function', () => {
+          const task = new Task();
+          const result = task.handleWillDoArgument(func);
+          (typeof result).should.equal('function');
+        });
+        it(' - which should return a promise', () => {
+          const task = new Task();
+          const result = task.handleWillDoArgument(func);
+          (result.call() instanceof Promise).should.be.true;
+        });
+      });
+      describe('when the function has two parameters', () => {
+        const func = (resolve, reject) => {}; // eslint-disable-line no-unused-vars
+        it('should return a function', () => {
+          const task = new Task();
+          const result = task.handleWillDoArgument(func);
+          (typeof result).should.equal('function');
+        });
+        it(' - which should return a promise', () => {
+          const task = new Task();
+          const result = task.handleWillDoArgument(func);
+          (result.call() instanceof Promise).should.be.true;
+        });
+      });
+    });
+  });
+
   describe('.will()', () => {
     it('should return this', () => {
       const task = new Task();
-      task.will().should.equal(task);
+      task.will(() => undefined).should.equal(task);
     });
     it('should be optional to all', () => {
       const task = new Task();
@@ -250,27 +301,76 @@ describe('Task', () => {
   });
 
   describe('.result()', () => {
-    it('is initially undefined', () => {
+    it('should initially be undefined', () => {
       const task = new Task();
       (typeof task.result).should.equal('undefined');
     });
-    it('is set once the task has been executed', () => {
+    it('should be set after the task has been executed', () => {
       const task = new Task();
-      task.___willDoCallback = () => 'DONE';
-      return task.go().then(() => task.result.should.equal('DONE'));
+      const value = 'DONE';
+      task.___willDoCallback = () => value;
+      return task.go().then(() => task.result.should.equal(value));
     });
   });
 
-  describe('ecmake DSL', () => {
-    it('integration test', () => {
-      const root = new Task();
-      root.all.awaits(root.test).will(() => [root.test.t1.result, root.test.t2.result]);
-      root.test.awaits(root.test.t1, root.test.t2);
-      root.test.t1.awaits(root.env).will(() => `${root.env.result}+1`);
-      root.test.t2.awaits(root.env).will(() => `${root.env.result}+2`);
-      root.env.will(() => 'env');
-      return root.all.go().then(() => {
-        root.all.result.should.deep.equal(['env+1', 'env+2']);
+  describe('different DSL setups', () => {
+    describe('when being used to set up a synchronous tree of tasks', () => {
+      it('should run the full chain of dependencies', () => {
+        const root = new Task();
+        root.all.awaits(root.test).will(() => [root.test.t1.result, root.test.t2.result]);
+        root.test.awaits(root.test.t1, root.test.t2);
+        root.test.t1.awaits(root.env).will(() => `${root.env.result}+1`);
+        root.test.t2.awaits(root.env).will(() => `${root.env.result}+2`);
+        root.env.will(() => 'env');
+        return root.all.go().then(() => {
+          root.all.result.should.deep.equal(['env+1', 'env+2']);
+        });
+      });
+    });
+    describe('DSL setups with kinds of .will() arguments', () => {
+      describe('when the code is synchornous', () => {
+        describe('when .will() takes a function', () => {
+          it('should run and set a result', () => {
+            const result = 'DONE';
+            const root = new Task();
+            root.will(() => result);
+            return root.go().then(() => {
+              root.result.should.equal(result);
+            });
+          });
+        });
+      });
+      describe('when the code is asynchornous', () => {
+        describe('when .will() takes a function returning a promise', () => {
+          it('should run and set a result', () => {
+            const result = 'DONE';
+            const root = new Task();
+            root.will(() => new Promise((resolve) => { resolve(result); }));
+            return root.go().then(() => {
+              root.result.should.equal(result);
+            });
+          });
+        });
+        describe('when .will() takes a promise', () => {
+          it('should run and set a result', () => {
+            const result = 'DONE';
+            const root = new Task();
+            root.will(new Promise((resolve) => { resolve(result); }));
+            return root.go().then(() => {
+              root.result.should.equal(result);
+            });
+          });
+        });
+        describe('when .will() takes a promise callback', () => {
+          it('should run and set a result', () => {
+            const result = 'DONE';
+            const root = new Task();
+            root.will((resolve) => resolve(result));
+            return root.go().then(() => {
+              root.result.should.equal(result);
+            });
+          });
+        });
       });
     });
   });
